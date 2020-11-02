@@ -1,7 +1,7 @@
 from avista.core import expose
 from avista.serial import SerialDevice
 from enum import Enum
-from twisted.internet.defer import DeferredLock
+from twisted.internet.defer import Deferred, DeferredLock, ensureDeferred
 from twisted.internet.protocol import Protocol
 
 
@@ -19,7 +19,7 @@ class VISCAProtocol(Protocol):
         self._buffer = []
 
     def dataReceived(self, data):
-        self.handler.log.debug('Serial data: <<< {data}', data)
+        self.handler.log.debug('Serial data: <<< {data}', data=data)
 
         self._buffer.extend(data)
         if len(self._buffer) > 0 and self._buffer[-1] == 0xFF:
@@ -295,6 +295,20 @@ class VISCACommandsMixin(object):
             (h & 0x000F)
         ])
 
+    @expose
+    async def getZoomPosition(self):
+        raw = await self.getVISCA(b'\x09\x04\x47')
+        zoom_value = ((raw[0] & 0x0F) << 12) + \
+                     ((raw[1] & 0x0F) << 8) + \
+                     ((raw[2] & 0x0F) << 4) + \
+                     (raw[3] & 0x0F)
+        return zoom_value
+
+    @expose
+    async def getWhiteBalanceMode(self):
+        raw = await self.getVISCA(b'\x09\x04\x35')
+        return raw[0]
+
 
 class VISCACamera(SerialDevice, VISCACommandsMixin):
     def __init__(self, config):
@@ -302,6 +316,7 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
         super().__init__(config)
         self._wait_for_ack = config.extra.get('waitForAck', True)
         self._command_lock = DeferredLock()
+        self._response_handler = None
 
     def get_protocol(self):
         return VISCAProtocol(self.camera_id, self)
@@ -316,14 +331,18 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
 
     def on_response(self, response_data):
         self.log.debug('Response: {data}', data=response_data)
+        if self._response_handler:
+            self._response_handler.callback(response_data)
         if self._command_lock.locked:
             self._command_lock.release()
 
     def on_error(self, error_code):
         self.log.error("VISCA error {error_code}", error_code=error_code)
 
-    async def sendVISCA(self, visca):
-        if self._wait_for_ack:
+    async def sendVISCA(self, visca, with_lock=None):
+        if with_lock is None:
+            with_lock = self._wait_for_ack
+        if with_lock:
             await self._command_lock.acquire()
 
         if isinstance(visca, list):
@@ -335,11 +354,29 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
         )
         self.log.debug('Wrote data {}'.format(data))
 
+    async def getVISCA(self, visca):
+        if self._wait_for_ack:
+            await self._command_lock.acquire()
+
+        response_handler = Deferred()
+        self._response_handler = response_handler
+        await self.sendVISCA(visca, with_lock=False)
+
+        response = await response_handler
+        return response
+
 
 class CameraSettingEnum(Enum):
     def __init__(self, code, label):
         self.code = code
         self.label = label
+
+    @classmethod
+    def from_code(cls, code):
+        for setting in list(cls):
+            if setting.code == code:
+                return setting
+        return None
 
 
 class Aperture(CameraSettingEnum):
@@ -403,3 +440,10 @@ class Gain(CameraSettingEnum):
     G_12 = (0x05, "12")
     G_15 = (0x06, "15")
     G_18 = (0x07, "18")
+
+
+class WhiteBalanceMode(CameraSettingEnum):
+    AUTO = (0, 'Auto')
+    INDOOR = (1, 'Indoor')
+    OUTDOOR = (2, 'Outdoor')
+    ONE_PUSH = (3, 'One-push')
