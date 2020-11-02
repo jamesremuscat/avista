@@ -15,10 +15,10 @@
                                     "uri": "",
                                     "match": "prefix",
                                     "allow": {
-                                        "call": false,
-                                        "register": false,
-                                        "publish": false,
-                                        "subscribe": false
+                                        "call": true,
+                                        "register": true,
+                                        "publish": true,
+                                        "subscribe": true
                                     },
                                     "disclose": {
                                         "caller": false,
@@ -40,6 +40,11 @@
                         "backlog": 1024
                     },
                     "paths": {
+                        "call": {
+                            "type": "caller",
+                            "realm": "realm1",
+                            "role": "anonymous"
+                        },
                         "ws": {
                             "type": "websocket",
                             "serializers": [
@@ -81,11 +86,11 @@
             ],
             "components": [
                {
-                  "id": "Camera 1",
                   "type": "class",
                   "realm": "realm1",
-                  "classname": "avista.serial.VISCACamera",
+                  "classname": "avista.devices.visca.VISCACamera",
                   "extra": {
+                     "name": "Camera1",
                      "port": "/dev/ttyUSB0",
                      "baudrate": 9600,
                      "cameraID": 1,
