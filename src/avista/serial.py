@@ -10,8 +10,6 @@ class SerialProtocol(Protocol):
 
 
 class SerialDevice(Device):
-    protocol = SerialProtocol()
-
     def __init__(self, config):
         super().__init__(config)
 
