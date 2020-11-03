@@ -153,12 +153,12 @@ class VISCACommandsMixin(object):
 
     @expose
     async def focusFar(self):
-        self.focusManual()
+        await self.focusManual()
         return await self.sendVISCA([0x01, 0x04, 0x08, 0x02])
 
     @expose
     async def focusNear(self):
-        self.focusManual()
+        await self.focusManual()
         return await self.sendVISCA([0x01, 0x04, 0x08, 0x03])
 
     @expose
@@ -187,12 +187,12 @@ class VISCACommandsMixin(object):
 
     @expose
     async def brighter(self):
-        self.sendVISCA([0x01, 0x04, 0x39, 0x0D])  # Put camera into manual exposure mode first!
+        await self.sendVISCA([0x01, 0x04, 0x39, 0x0D])  # Put camera into manual exposure mode first!
         return await self.sendVISCA([0x01, 0x04, 0x0D, 0x02])
 
     @expose
     async def darker(self):
-        self.sendVISCA([0x01, 0x04, 0x39, 0x0D])  # Put camera into manual exposure mode first!
+        await self.sendVISCA([0x01, 0x04, 0x39, 0x0D])  # Put camera into manual exposure mode first!
         return await self.sendVISCA([0x01, 0x04, 0x0D, 0x03])
 
     @expose
