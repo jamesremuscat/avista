@@ -64,3 +64,13 @@ class ICStationRelayCard(SerialDevice):
             if not self.state[i]:  # Card requires bit = 0 to turn relay on
                 stateByte += 1 << i
         self._port.writeSomeData(bytes([stateByte]))
+
+
+class KMtronicRelayCard(SerialDevice):
+    @expose
+    def turnOn(self, channel):
+        self._port.writeSomeData(bytes([0xFF, channel, 0x01]))
+
+    @expose
+    def turnOff(self, channel):
+        self._port.writeSomeData(bytes([0xFF, channel, 0x00]))
