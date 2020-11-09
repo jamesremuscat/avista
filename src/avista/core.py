@@ -1,5 +1,5 @@
 from autobahn.twisted.wamp import ApplicationSession
-from .constants import Messages, SystemPowerState
+from .constants import Messages, SystemPowerState, Topics, INFRASTRUCTURE_PUBLISH_OPTIONS
 
 import inspect
 

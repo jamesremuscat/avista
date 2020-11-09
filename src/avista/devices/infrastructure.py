@@ -1,5 +1,5 @@
 from avista.core import Device, expose
-from avista.constants import SystemPowerState, Messages
+from avista.constants import SystemPowerState, Messages, Topics
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 
