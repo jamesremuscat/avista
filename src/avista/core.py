@@ -41,6 +41,14 @@ class Device(ApplicationSession):
             options=INFRASTRUCTURE_PUBLISH_OPTIONS
         )
 
+    def publish(self, topic, payload, **kwargs):
+        self.log.debug(
+            'Publishing to {topic}: {payload}',
+            topic=topic,
+            payload=payload
+        )
+        super().publish(topic, payload, **kwargs)
+
     @property
     def broadcast_topic(self):
         return 'avista.devices.{}'.format(self.name)
