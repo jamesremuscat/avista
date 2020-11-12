@@ -1,4 +1,5 @@
 from autobahn.twisted.wamp import ApplicationSession
+from autobahn.wamp.types import PublishOptions
 from .constants import Messages, SystemPowerState, Topics, INFRASTRUCTURE_PUBLISH_OPTIONS
 
 import inspect
@@ -30,7 +31,7 @@ class Device(ApplicationSession):
             Topics.INFRASTRUCTURE
         )
 
-    def publish_infrastructure_message(self, msg_type, data=None):
+    def broadcast_infrastructure_message(self, msg_type, data=None):
         self.publish(
             Topics.INFRASTRUCTURE,
             {
@@ -38,6 +39,20 @@ class Device(ApplicationSession):
                 'data': data
             },
             options=INFRASTRUCTURE_PUBLISH_OPTIONS
+        )
+
+    @property
+    def broadcast_topic(self):
+        return 'avista.devices.{}'.format(self.name)
+
+    def broadcast_device_message(self, msg_type, data=None, **kwargs):
+        self.publish(
+            self.broadcast_topic,
+            {
+                'type': msg_type,
+                'data': data
+            },
+            options=PublishOptions(**kwargs)
         )
 
     def on_infrastructure_message(self, msg):

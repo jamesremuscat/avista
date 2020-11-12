@@ -3,6 +3,10 @@ from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, ReconnectingClientFactory
 
 
+class NotConnectedException(Exception):
+    pass
+
+
 class NetworkProtocolFactory(ReconnectingClientFactory):
     def __init__(self, device):
         self.device = device
@@ -31,13 +35,17 @@ class NetworkDevice(Device):
         self._connection = None
 
         if self.always_powered:
-            self.after_power_on()
+            self._connect()
 
     def get_protocol(self):
+        if not self.protocol:
+            self.protocol = self.create_protocol()
+        return self.protocol
+
+    def create_protocol(self):
         return None
 
-    def after_power_on(self):
-
+    def _connect(self):
         factory = NetworkProtocolFactory(self)
 
         self._connection = reactor.connectTCP(
@@ -46,6 +54,12 @@ class NetworkDevice(Device):
             factory
         )
 
+    def after_power_on(self):
+        if not self.always_powered:
+            self._connect()
+
     def before_power_off(self):
-        if self._connection:
-            self._connection.disconnect()
+        if not self.always_powered:
+            if self._connection:
+                self._connection.disconnect()
+            self.protocol = None

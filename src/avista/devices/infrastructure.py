@@ -44,7 +44,7 @@ class StaggeredSystemPower(Device):
 
     def _set_state(self, state):
         self._state = state
-        self.publish_infrastructure_message(
+        self.broadcast_infrastructure_message(
             Messages.SYSTEM_POWER_STATE,
             self._state
         )
