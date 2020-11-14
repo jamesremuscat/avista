@@ -186,6 +186,15 @@ class HyperDeck(NetworkDevice):
 
     @expose
     def play(self, single_clip=None, speed=None, loop=None):
+        '''
+Play from the current point of the timeline, at the specified speed.
+
+If `single_clip` is True, then playback will stop (or loop) at the end
+of the current clip.
+
+If `loop` is True then playback will loop at the end of the current
+timeline (or clip), else it will stop.
+        '''
         if single_clip is None and speed is None and loop is None:
             self.send('play')
         else:
