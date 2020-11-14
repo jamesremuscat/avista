@@ -9,7 +9,10 @@ class SystemPowerState(object):
 
 
 class Messages(object):
-    SYSTEM_POWER_STATE = 'avista.infrastructure.SystemPowerState'
+    SYSTEM_POWER_STATE = 'SystemPowerState'
+    REGISTER_DEVICE = 'RegisterDevice'
+    RE_REGISTER_ALL_DEVICES = 'ReRegisterAllDevices'
+    DEVICE_LISTING = 'DeviceListing'
 
 
 class Topics(object):
