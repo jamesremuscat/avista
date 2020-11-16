@@ -16,3 +16,9 @@ class ATEM(NetworkDevice):
             self.port,
             protocol
         )
+
+    def before_power_off(self):
+        if not self.always_powered:
+            if self._connection:
+                self._connection.stopListening()
+            self.protocol = None

@@ -30,6 +30,7 @@ setup(
     tests_require=[],
     install_requires=[
         'autobahn[twisted]',
+        'construct',
         'pyserial',
         'recordclass'
     ],

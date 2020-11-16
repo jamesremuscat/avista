@@ -1,4 +1,5 @@
 from recordclass import recordclass
+
 import struct
 
 
@@ -18,8 +19,9 @@ class Packet(recordclass('Packet', ['bitmask', 'size', 'uid', 'ack_id', 'package
     @staticmethod
     def parse(datagram):
         if len(datagram) >= SIZE_OF_HEADER:
+            bitmask = struct.unpack('B', datagram[0:1])[0] >> 3
             return Packet(
-                struct.unpack('B', datagram[0:1])[0] >> 3,
+                bitmask,
                 struct.unpack('!H', datagram[0:2])[0] & 0x07FF,
                 struct.unpack('!H', datagram[2:4])[0],
                 struct.unpack('!H', datagram[4:6])[0],
