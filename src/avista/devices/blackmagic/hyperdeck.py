@@ -22,7 +22,13 @@ class HyperDeckProtocol(LineOnlyReceiver):
         self._multiline_mode = False
 
     def connectionMade(self):
+        self.device.log.info('Connected to remote HyperDeck device')
+        # Get async updates on HyperDeck state...
         self.sendLine(b'notify: transport: true slot: true')
+        # ...and get current state data too
+        self.sendLine(b'slot info')
+        self.sendLine(b'transport info')
+        self.sendLine(b'disk list')
 
     def lineReceived(self, line):
         if self._multiline_mode:
