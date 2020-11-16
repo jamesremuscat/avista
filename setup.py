@@ -30,7 +30,8 @@ setup(
     tests_require=[],
     install_requires=[
         'autobahn[twisted]',
-        'pyserial'
+        'pyserial',
+        'recordclass'
     ],
     entry_points={
         'console_scripts': [
