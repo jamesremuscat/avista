@@ -84,6 +84,7 @@ def _map_and_store_state(store, new_state, mapping={}):
 
 
 class HyperDeck(NetworkDevice):
+    default_port = 9993
 
     def __init__(self, config):
         super().__init__(config)

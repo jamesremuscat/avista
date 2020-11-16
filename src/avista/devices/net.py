@@ -25,11 +25,13 @@ class NetworkProtocolFactory(ReconnectingClientFactory):
 
 
 class NetworkDevice(Device):
+    default_port = None
+
     def __init__(self, config):
         self.protocol = None
         super().__init__(config)
         self.host = config.extra['host']
-        self.port = config.extra['port']
+        self.port = config.extra.get('port', self.default_port)
         self.always_powered = config.extra.get('alwaysPowered')
 
         self._connection = None
