@@ -45,6 +45,12 @@ class NetworkDevice(Device):
     def create_protocol(self):
         return None
 
+    def send(self, data):
+        if self.get_protocol():
+            self.get_protocol().send(data)
+        else:
+            raise NotConnectedException()
+
     def _connect(self):
         factory = NetworkProtocolFactory(self)
 
