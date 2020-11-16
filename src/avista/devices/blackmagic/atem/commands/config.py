@@ -4,23 +4,23 @@ from .base import BaseCommand
 
 
 class Version(BaseCommand):
+    name = b'_ver'
     format = Struct(
-        '_name' / Const(b'_ver'),
         'major' / Int16ub,
         'minor' / Int16ub
     )
 
 
 class ProductName(BaseCommand):
+    name = b'_pin'
     format = Struct(
-        '_name' / Const(b'_pin'),
         'name' / PaddedString(44, 'utf8')
     )
 
 
 class TopologyV7(BaseCommand):
+    name = b'_top'
     format = Struct(
-        '_name' / Const(b'_top'),
         'mes' / Int8ub,
         'sources' / Int8ub,
         'dsks' / Int8ub,
@@ -36,8 +36,9 @@ class TopologyV7(BaseCommand):
 
 
 class TopologyV8(BaseCommand):
+    name = b'_top'
+    minimum_version = 2.28
     format = Struct(
-        '_name' / Const(b'_top'),
         'mes' / Int8ub,
         'sources' / Int8ub,
         'dsks' / Int8ub,
@@ -60,8 +61,9 @@ class TopologyV8(BaseCommand):
 
 
 class TopologyV811(BaseCommand):
+    name = b'_top'
+    minimum_version = 2.30
     format = Struct(
-        '_name' / Const(b'_top'),
         'mes' / Int8ub,
         'sources' / Int8ub,
         'dsks' / Int8ub,
@@ -81,4 +83,74 @@ class TopologyV811(BaseCommand):
         Padding(3),
         'advanced_chroma_keyers' / Flag,
         'only_configurable_outputs' / Flag
+    )
+
+
+class MixEffectBusConfig(BaseCommand):
+    name = b'_MeC'
+    format = Struct(
+        'id' / Int8ub,
+        'keyers' / Int8ub
+    )
+
+
+class MediaPoolConfig(BaseCommand):
+    name = b'_mpl'
+    format = Struct(
+        'stills' / Int8ub,
+        'clips' / Int8ub
+    )
+
+
+class MultiviewerConfigV7(BaseCommand):
+    name = b'_MvC'
+    format = Struct(
+        'count' / Int8ub,
+        'window_count' / Int8ub,
+        Padding(1),
+        'can_route_inputs' / Flag,
+        Padding(1),
+        'can_swap_program_preview' / Flag,
+        Padding(1),
+        'can_toggle_safe_area' / Flag
+    )
+
+
+class MultiviewerConfigV8(BaseCommand):
+    name = b'_MvC'
+    minimum_version = 2.28
+    format = Struct(
+        'count' / Int8ub,
+        'window_count' / Int8ub,
+        Padding(1),
+        'can_route_inputs' / Flag,
+        Padding(2),
+        'supports_vu_meters' / Flag,
+        'can_toggle_safe_area' / Flag,
+        'can_swap_program_preview' / Flag,
+        'supports_quadrants' / Flag
+    )
+
+
+class MultiviewerConfigV811(BaseCommand):
+    name = b'_MvC'
+    minimum_version = 2.30
+    format = Struct(
+        'window_count' / Int8ub,
+        'can_change_layout' / Flag,
+        'can_route_inputs' / Flag,
+        Padding(2),
+        'supports_vu_meters' / Flag,
+        'can_toggle_safe_area' / Flag,
+        'can_swap_program_preview' / Flag,
+        'supports_quadrants' / Flag
+    )
+
+
+class AudioMixerConfig(BaseCommand):
+    name = b'_AMC'
+    format = Struct(
+        'inputs' / Int8ub,
+        'monitors' / Int8ub,
+        'headphones' / Int8ub
     )

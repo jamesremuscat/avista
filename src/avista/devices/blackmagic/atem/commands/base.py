@@ -1,10 +1,19 @@
+from construct import Const
+
+
 class BaseCommand(object):
+    minimum_version = -1
+
     @classmethod
     def parse(cls, raw):
-        struct = cls.format.parse(raw)
+        struct = cls._full_struct().parse(raw)
         return cls(
             **struct
         )
+
+    @classmethod
+    def _full_struct(cls):
+        return Const(cls.name) + cls.format
 
     def __init__(self, *args, **kwargs):
         for subcon in self.format.subcons:
@@ -15,12 +24,12 @@ class BaseCommand(object):
                     setattr(self, subcon.name, kwargs[subcon.name])
 
     def to_bytes(self):
-        return self.format.build(self.__dict__)
+        return self.__class__._full_struct().build(self.__dict__)
 
     def __repr__(self):
-        struct = self.format.parse(self.to_bytes())
+        struct = self.__class__._full_struct().parse(self.to_bytes())
         return '<{} ({}): {}>'.format(
             self.__class__.__name__,
-            struct._name.decode('utf-8'),
+            self.name,
             struct.__repr__()
         )

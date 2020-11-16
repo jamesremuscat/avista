@@ -1,22 +1,43 @@
+from collections import defaultdict
 from recordclass import RecordClass
 import inspect
 import struct
 import txaio
 
+from .base import BaseCommand
 from .config import *
-
-COMMAND_LIST = {
-    b'_ver': Version,
-    b'_pin': ProductName,
-    b'_top': [
-        [7, TopologyV7],
-        [2.28, TopologyV8],
-        [2.30, TopologyV811]
-    ]
-}
 
 
 log = txaio.make_logger()
+
+
+def get_all_subclasses(cls):
+    all_subclasses = []
+
+    for subclass in cls.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(get_all_subclasses(subclass))
+
+    return all_subclasses
+
+
+COMMAND_LIST = defaultdict(list)
+
+for command_class in get_all_subclasses(BaseCommand):
+    if hasattr(command_class, 'name'):
+        log.info(
+            'Discovered command: {name} (version {ver})'.format(
+                name=command_class.name,
+                ver=command_class.minimum_version
+            )
+        )
+        name = command_class.name
+        COMMAND_LIST[name].append([
+            command_class.minimum_version,
+            command_class
+        ])
+    else:
+        raise Exception('Command class without defined name: {}'.format(command_class))
 
 
 class CommandParser(object):
@@ -66,7 +87,7 @@ class CommandParser(object):
                 )
                 return res[1].parse(payload)
         else:
-            log.debug(
+            log.warn(
                 'Command {cmd} not recognised for version {ver}',
                 cmd=command_type,
                 ver=self._version
