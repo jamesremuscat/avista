@@ -1,6 +1,6 @@
-from construct import Struct, Const, Flag, Int8ub, Int16ub, PaddedString, Padding
-from recordclass import recordclass
-from .base import BaseCommand
+from avista.devices.blackmagic.atem.constants import VideoMode
+from construct import Struct, Const, Flag, Int8ub, Int16ub, Int32ub, PaddedString, Padding
+from .base import BaseCommand, EnumAdapter, EnumFlagAdapter
 
 
 class Version(BaseCommand):
@@ -153,4 +153,26 @@ class AudioMixerConfig(BaseCommand):
         'inputs' / Int8ub,
         'monitors' / Int8ub,
         'headphones' / Int8ub
+    )
+
+
+class VideoModeConfig(BaseCommand):
+    name = b'VidM'
+    format = Struct(
+        'mode' / EnumAdapter(VideoMode)(Int8ub)
+    )
+
+
+class DownConvertVideoMode(BaseCommand):
+    name = b'DHVm'
+    format = Struct(
+        'core_mode' / EnumAdapter(VideoMode)(Int8ub),
+        'down_converted_mode' / EnumAdapter(VideoMode)(Int8ub),
+    )
+
+
+class VideoMixerConfig(BaseCommand):
+    name = b'_VMC'
+    format = Struct(
+        'available_modes' / EnumFlagAdapter(VideoMode)(Int32ub)
     )

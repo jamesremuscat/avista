@@ -1,4 +1,48 @@
-from construct import Const
+from construct import Adapter, Const
+
+
+def EnumAdapter(enum_class):
+    class _EnumAdapter(Adapter):
+        def _decode(self, obj, context, path):
+            return enum_class(obj)
+
+        def _encode(self, obj, context, path):
+            return obj.value
+    return _EnumAdapter
+
+
+def EnumFlagAdapter(enum_class):
+    class _EnumFlagAdapter(Adapter):
+        def _decode(self, obj, context, path):
+            values = {}
+
+            for idx, enum_value in enumerate(enum_class):
+                if idx > 0:
+                    mask = 1 << idx - 1
+                    values[enum_value] = (obj & mask) > 0
+
+            return values
+
+        def _encode(self, obj, context, path):
+            value = 0
+            for idx, enum_value in enumerate(enum_class):
+                if idx > 0 and obj.get(enum_value, False):
+                    value |= 1 << idx - 1
+
+            return value
+
+    return _EnumFlagAdapter
+
+
+class PaddedCStringAdapter(Adapter):
+    def _decode(self, obj, context, path):
+        if '\x00' in obj:
+            end_of_string = obj.index('\x00')
+            return obj[:end_of_string]
+        return obj
+
+    def _encode(self, obj, context, path):
+        return obj
 
 
 class BaseCommand(object):

@@ -40,7 +40,7 @@ class ATEMProtocol(DatagramProtocol):
             if packet.payload:
                 commands = self._command_parser.parse_commands(packet.payload)
                 if commands:
-                    print(commands)
+                    pass  # print(commands)
 
             if packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK_REQUEST):
                 self._is_initialised = False

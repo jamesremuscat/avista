@@ -6,6 +6,9 @@ import txaio
 
 from .base import BaseCommand
 from .config import *
+from .macro import *
+from .media import *
+from .settings import *
 
 
 log = txaio.make_logger()
@@ -25,7 +28,7 @@ COMMAND_LIST = defaultdict(list)
 
 for command_class in get_all_subclasses(BaseCommand):
     if hasattr(command_class, 'name'):
-        log.info(
+        log.debug(
             'Discovered command: {name} (version {ver})'.format(
                 name=command_class.name,
                 ver=command_class.minimum_version
@@ -88,7 +91,8 @@ class CommandParser(object):
                 return res[1].parse(payload)
         else:
             log.warn(
-                'Command {cmd} not recognised for version {ver}',
+                'Command {cmd} not recognised for version {ver}: {full}',
                 cmd=command_type,
-                ver=self._version
+                ver=self._version,
+                full=payload
             )
