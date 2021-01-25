@@ -179,7 +179,8 @@ class DeviceManager(Device):
     def publish_device_manifest(self):
         self.broadcast_infrastructure_message(
             Messages.DEVICE_LISTING,
-            self.devices
+            self.devices,
+            retain=True
         )
 
     def on_infrastructure_message(self, message):
