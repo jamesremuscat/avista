@@ -49,3 +49,8 @@ class StaggeredSystemPower(Device):
             self._state,
             retain=True
         )
+        self.broadcast_device_message(
+            Messages.SYSTEM_POWER_STATE,
+            self._state,
+            retain=True
+        )
