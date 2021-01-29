@@ -183,7 +183,8 @@ class PowerState(BaseCommand):
     format = Struct(
         'power' / BitStruct(
             'main' / Flag,
-            'backup' / Flag
+            'backup' / Flag,
+            Padding(6)
         ),
         Padding(3)
     )
