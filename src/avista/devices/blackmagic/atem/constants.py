@@ -173,3 +173,10 @@ class AudioMixOption(IntEnum):
     OFF = 0
     ON = 1
     AFV = 2
+
+
+class MultiviewLayout(IntEnum):
+    TOP = 0
+    BOTTOM = 1
+    LEFT = 2
+    RIGHT = 3

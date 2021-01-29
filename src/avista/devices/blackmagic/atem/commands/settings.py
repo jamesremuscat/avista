@@ -1,5 +1,5 @@
 from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalPortType, MEAvailability, \
-    SourceAvailability, VideoSource, VideoMode
+    MultiviewLayout, SourceAvailability, VideoSource, VideoMode
 from construct import Adapter, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter
 
@@ -30,4 +30,39 @@ class MultiviewVideoMode(BaseCommand):
     format = Struct(
         'core_video_mode' / VideoModeAdapter(Int8ub),
         'multiview_video_mode' / VideoModeAdapter(Int8ub),
+    )
+
+
+class MultiviewLayout(BaseCommand):
+    name = b'MvPr'
+    format = Struct(
+        'index' / Int8ub,
+        'layout' / EnumAdapter(MultiviewLayout)(Int8ub)
+    )
+
+
+class MultiviewWindowVUMeter(BaseCommand):
+    name = b'VuMC'
+    format = Struct(
+        'index' / Int8ub,
+        'window_index' / Int8ub,
+        'enabled' / Flag
+    )
+
+
+class MultiviewWindowSafeArea(BaseCommand):
+    name = b'SaMw'
+    format = Struct(
+        'index' / Int8ub,
+        'window_index' / Int8ub,
+        'enabled' / Flag
+    )
+
+
+class MultiviewInput(BaseCommand):
+    name = b'MvIn'
+    format = Struct(
+        'index' / Int8ub,
+        'window_index' / Int8ub,
+        'source' / EnumAdapter(VideoSource)(Int16ub)
     )
