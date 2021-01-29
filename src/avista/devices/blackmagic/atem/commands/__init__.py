@@ -5,6 +5,7 @@ import struct
 import txaio
 
 from .base import BaseCommand
+from .audio import *
 from .config import *
 from .macro import *
 from .media import *

@@ -1,5 +1,5 @@
 from avista.devices.blackmagic.atem.constants import VideoMode
-from construct import Struct, Const, Flag, Int8ub, Int16ub, Int32ub, PaddedString, Padding
+from construct import BitStruct, Struct, Const, Flag, Int8ub, Int16ub, Int32ub, PaddedString, Padding
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter
 
 
@@ -175,4 +175,15 @@ class VideoMixerConfig(BaseCommand):
     name = b'_VMC'
     format = Struct(
         'available_modes' / EnumFlagAdapter(VideoMode)(Int32ub)
+    )
+
+
+class PowerState(BaseCommand):
+    name = b'Powr'
+    format = Struct(
+        'power' / BitStruct(
+            'main' / Flag,
+            'backup' / Flag
+        ),
+        Padding(3)
     )
