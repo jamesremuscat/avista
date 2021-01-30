@@ -3,6 +3,8 @@ from construct import Struct, Flag, Int8ub, Int16ub, Int16sb, Padding, Rebuild, 
 from avista.devices.blackmagic.atem.constants import AudioSource, AudioSourceType, AudioSourcePlugType, AudioMixOption
 from .base import BaseCommand, EnumAdapter
 
+import copy
+
 
 class AudioMixerInput(BaseCommand):
     name = b'AMIP'
@@ -18,6 +20,19 @@ class AudioMixerInput(BaseCommand):
         'balance' / Int16sb,
         Padding(1)
     )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        input = new_state.setdefault('audio_sources', {}).setdefault(self.source, {})
+
+        input['type'] = self.type
+        input['from_media_player'] = self.from_media_player
+        input['plug_type'] = self.plug_type
+        input['mix_option'] = self.mix_option
+        input['volume'] = self.volume
+        input['balance'] = self.balance
+
+        return new_state
 
 
 class AudioMixerMaster(BaseCommand):

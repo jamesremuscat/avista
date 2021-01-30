@@ -3,6 +3,8 @@ from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalP
 from construct import Adapter, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter
 
+import copy
+
 
 ExternalPortTypeAdapter = EnumAdapter(ExternalPortType)
 InternalPortTypeAdapter = EnumAdapter(InternalPortType)
@@ -24,6 +26,21 @@ class InputProperties(BaseCommand):
         'me_availability' / EnumFlagAdapter(MEAvailability)(Int8ub)
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+
+        source = new_state.setdefault('sources', {}).setdefault(self.id, {})
+        source['name'] = self.name
+        source['short_name'] = self.short_name
+        source['names_are_default'] = self.are_names_default
+        # Spammy!
+        # source['available_external_ports'] = self.available_external_ports
+        # source['external_port_type'] = self.external_port_type
+        # source['internal_port_type'] = self.internal_port_type
+        source['me_availability'] = self.me_availability
+
+        return new_state
+
 
 class MultiviewVideoMode(BaseCommand):
     name = b'MvVM'
@@ -32,6 +49,13 @@ class MultiviewVideoMode(BaseCommand):
         'multiview_video_mode' / VideoModeAdapter(Int8ub),
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        mvw_config = new_state.setdefault('config', {}).setdefault('multiviewers', {}).setdefault('video_modes', {})
+
+        mvw_config[self.core_video_mode] = self.multiview_video_mode
+        return new_state
+
 
 class MultiviewLayout(BaseCommand):
     name = b'MvPr'
@@ -39,6 +63,12 @@ class MultiviewLayout(BaseCommand):
         'index' / Int8ub,
         'layout' / EnumAdapter(MultiviewLayout)(Int8ub)
     )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        mvw['layout'] = self.layout
+        return new_state
 
 
 class MultiviewWindowVUMeter(BaseCommand):
@@ -49,6 +79,13 @@ class MultiviewWindowVUMeter(BaseCommand):
         'enabled' / Flag
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        window['vu_meter_enabled'] = self.enabled
+        return new_state
+
 
 class MultiviewWindowSafeArea(BaseCommand):
     name = b'SaMw'
@@ -58,6 +95,13 @@ class MultiviewWindowSafeArea(BaseCommand):
         'enabled' / Flag
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        window['safe_area_enabled'] = self.enabled
+        return new_state
+
 
 class MultiviewInput(BaseCommand):
     name = b'MvIn'
@@ -66,3 +110,10 @@ class MultiviewInput(BaseCommand):
         'window_index' / Int8ub,
         'source' / EnumAdapter(VideoSource)(Int16ub)
     )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        window['source'] = self.source
+        return new_state

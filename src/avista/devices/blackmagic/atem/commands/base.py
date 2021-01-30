@@ -77,3 +77,7 @@ class BaseCommand(object):
             self.name,
             struct.__repr__()
         )
+
+    def apply_to_state(self, state):
+        print('WARN Default implementation of apply_to_state for {}'.format(self.__class__.__name__))
+        return state
