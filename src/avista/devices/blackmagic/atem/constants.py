@@ -180,3 +180,18 @@ class MultiviewLayout(IntEnum):
     BOTTOM = 1
     LEFT = 2
     RIGHT = 3
+
+
+class TransitionStyle(IntEnum):
+    MIX = 0
+    DIP = 1
+    WIPE = 2
+    DVE = 3
+    STING = 4
+
+
+class KeyType(IntEnum):
+    LUMA = 0
+    CHROMA = 1
+    PATTERN = 2
+    DVE = 3

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from construct.core import StreamError
 from recordclass import RecordClass
 import inspect
 import struct
@@ -7,8 +8,10 @@ import txaio
 from .base import BaseCommand
 from .audio import *
 from .config import *
+from .dsk import *
 from .macro import *
 from .media import *
+from .mix_effects import *
 from .settings import *
 
 
@@ -78,22 +81,29 @@ class CommandParser(object):
 
         cmd_class = COMMAND_LIST.get(command_type)
 
-        if inspect.isclass(cmd_class):
-            return cmd_class.parse(payload)
-        elif isinstance(cmd_class, list):
-            if self._version is None:
-                return cmd_class[-1][1].parse(payload)
-            else:
-                version_options = sorted(cmd_class, key=lambda o: -o[0])
+        try:
+            if inspect.isclass(cmd_class):
+                return cmd_class.parse(payload)
+            elif isinstance(cmd_class, list):
+                if self._version is None:
+                    return cmd_class[-1][1].parse(payload)
+                else:
+                    version_options = sorted(cmd_class, key=lambda o: -o[0])
 
-                res = next(
-                    val for val in version_options if val[0] <= self._version
+                    res = next(
+                        val for val in version_options if val[0] <= self._version
+                    )
+                    return res[1].parse(payload)
+            else:
+                log.warn(
+                    'Command {cmd} not recognised for version {ver}: {full}',
+                    cmd=command_type,
+                    ver=self._version,
+                    full=payload
                 )
-                return res[1].parse(payload)
-        else:
-            log.warn(
-                'Command {cmd} not recognised for version {ver}: {full}',
+        except StreamError as e:
+            log.error(
+                'Failed to parse command {cmd}! {full}',
                 cmd=command_type,
-                ver=self._version,
                 full=payload
             )
