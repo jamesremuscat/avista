@@ -195,3 +195,8 @@ class KeyType(IntEnum):
     CHROMA = 1
     PATTERN = 2
     DVE = 3
+
+
+class SDI3GOutputLevel(IntEnum):
+    LEVEL_B = 0
+    LEVEL_A = 1

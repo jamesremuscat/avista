@@ -144,7 +144,7 @@ class TransitionMixProperties(BaseCommand):
 
 
 class TransitionDipProperties(BaseCommand):
-    name = b'TMxP'
+    name = b'TDpP'
     format = Struct(
         'index' / Int8ub,
         'rate' / Int8ub,

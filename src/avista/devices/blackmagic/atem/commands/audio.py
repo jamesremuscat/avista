@@ -42,6 +42,17 @@ class AudioMixerMaster(BaseCommand):
         Padding(6)
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['audio'] = copy.copy(state.get('audio', {}))
+
+        master = {
+            'volume': self.volume
+        }
+
+        new_state['audio']['master'] = master
+        return new_state
+
 
 class AudioMixerMonitor(BaseCommand):
     name = b'AMmO'
@@ -56,6 +67,22 @@ class AudioMixerMonitor(BaseCommand):
         Padding(3)
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['audio'] = copy.copy(state.get('audio', {}))
+
+        monitor = {
+            'enabled': self.enabled,
+            'volume': self.volume,
+            'mute': self.mute,
+            'solo': self.solo,
+            'solo_input': self.solo_input,
+            'dim': self.dim
+        }
+
+        new_state['audio']['monitor'] = monitor
+        return new_state
+
 
 class AudioMixerTally(BaseCommand):
     name = b'AMTl'
@@ -66,3 +93,30 @@ class AudioMixerTally(BaseCommand):
             'is_mixed_in' / Flag
         )[this.source_count]
     )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['audio'] = copy.copy(state.get('audio', {}))
+
+        tally = {}
+
+        for source in self.sources:
+            tally[source.source] = source.is_mixed_in
+
+        new_state['audio']['tally'] = tally
+        return new_state
+
+
+class AudioFollowVideo(BaseCommand):
+    name = b'AMPP'
+    format = Struct(
+        'enabled' / Flag,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['audio'] = copy.copy(state.get('audio', {}))
+
+        new_state['audio']['afv'] = self.enabled
+        return new_state

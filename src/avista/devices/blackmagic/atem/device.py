@@ -30,4 +30,5 @@ class ATEM(NetworkDevice):
     def receive_command(self, command):
         new_state = command.apply_to_state(self._state)
         self._state = new_state
-        # print(new_state)
+        if new_state.get('state', {}).get('initialized'):
+            print(self._state)

@@ -1,4 +1,4 @@
-from avista.devices.blackmagic.atem.constants import VideoMode
+from avista.devices.blackmagic.atem.constants import SDI3GOutputLevel, VideoMode
 from construct import BitStruct, Struct, Const, Flag, Int8ub, Int16ub, Int32ub, PaddedString, Padding
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter
 
@@ -14,7 +14,8 @@ class Version(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        new_state.setdefault('config', {})['version'] = {
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['version'] = {
             'major': self.major,
             'minor': self.minor
         }
@@ -29,7 +30,8 @@ class ProductName(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        new_state.setdefault('config', {})['name'] = self.name
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['name'] = self.name.strip()
         return new_state
 
 
@@ -126,7 +128,8 @@ class MixEffectBusConfig(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        me = new_state.setdefault('mes', {}).setdefault(self.id, {})
+        new_state['mes'] = copy.copy(new_state.get('mes', {}))
+        me = new_state['mes'].setdefault(self.id, {})
         me['keyers'] = {
             idx: {} for idx in range(self.keyers)
         }
@@ -142,7 +145,8 @@ class MediaPoolConfig(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mpl = new_state.setdefault('config', {}).setdefault('media_pool', {})
+        new_state['config'] = copy.copy(state.get('config', {}))
+        mpl = new_state['config'].setdefault('media_pool', {})
         mpl['stills'] = self.stills
         mpl['clips'] = self.clips
         return new_state
@@ -203,7 +207,8 @@ class AudioMixerConfig(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        audio = new_state.setdefault('config', {}).setdefault('audio', {})
+        new_state['config'] = copy.copy(state.get('config', {}))
+        audio = new_state['config'].setdefault('audio', {})
         audio['input_count'] = self.inputs
         audio['monitor_count'] = self.monitors
         audio['headphones_count'] = self.headphones
@@ -218,7 +223,8 @@ class VideoModeConfig(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        new_state.setdefault('state', {})['video_mode'] = self.mode
+        new_state['state'] = copy.copy(new_state.get('state', {}))
+        new_state['state']['video_mode'] = self.mode
         return new_state
 
 
@@ -231,7 +237,8 @@ class DownConvertVideoMode(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        config = new_state.setdefault('config', {}).setdefault('downconverter', {})
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        config = new_state['config'].setdefault('downconverter', {})
         config[self.core_mode] = self.down_converted_mode
         return new_state
 
@@ -244,8 +251,8 @@ class VideoMixerConfig(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        config = new_state.setdefault('config', {})
-        config['available_video_modes'] = self.available_modes
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['available_video_modes'] = self.available_modes
         return new_state
 
 
@@ -262,8 +269,79 @@ class PowerState(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        new_state.setdefault('state', {})['power'] = {
+        new_state['state'] = copy.copy(new_state.get('state', {}))
+        new_state['state']['power'] = {
             'main': self.power.main,
             'backup': self.power.backup
         }
+        return new_state
+
+
+class SDI3GOutputLevel(BaseCommand):
+    name = b'V3sl'
+    format = Struct(
+        'level' / EnumAdapter(SDI3GOutputLevel)(Int8ub)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['sdi_3g_output_level'] = self.level
+        return new_state
+
+
+class MacroPoolConfig(BaseCommand):
+    name = b'_MAC'
+    format = Struct(
+        'count' / Int8ub,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['macro_pool_size'] = self.count
+        return new_state
+
+
+class TallyChannelConfig(BaseCommand):
+    name = b'_TlC'
+    format = Struct(
+        Padding(4),
+        'count' / Int8ub,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        new_state['config']['tally_channels'] = self.count
+        return new_state
+
+
+class TimecodeLock(BaseCommand):
+    name = b'TcLk'
+    format = Struct(
+        'locked' / Flag,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['state'] = copy.copy(new_state.get('state', {}))
+        new_state['state']['timecode_locked'] = self.locked
+        return new_state
+
+
+class InitComplete(BaseCommand):
+    name = b'InCm'
+    format = Struct(
+        'complete' / Flag,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        new_state['state'] = copy.copy(new_state.get('state', {}))
+        new_state['state']['initialized'] = self.complete
         return new_state

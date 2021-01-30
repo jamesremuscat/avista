@@ -2,6 +2,8 @@ from avista.devices.blackmagic.atem.constants import MediaPoolFileType
 from construct import Struct, Bytes, Const, Flag, Int8ub, Int16ub, CString, Padding, GreedyBytes
 from .base import BaseCommand, EnumAdapter
 
+import copy
+
 
 class MediaPoolFrameDescription(BaseCommand):
     name = b'MPfe'
@@ -13,6 +15,19 @@ class MediaPoolFrameDescription(BaseCommand):
         'filename' / CString('utf-8')
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        frame_pool = copy.copy(new_state.get('media_pool', {})).setdefault('frames', {})
+
+        frame_pool[self.index] = {
+            'file_type': self.file_type,
+            'used': self.used,
+            'hash': self.hash,
+            'filename': self.filename
+        }
+
+        return new_state
+
 
 class MediaPoolClipDescription(BaseCommand):
     name = b'MPCS'
@@ -23,9 +38,24 @@ class MediaPoolClipDescription(BaseCommand):
         'frame_count' / Int16ub
     )
 
+    def apply_to_state(self, state):
+        new_state = copy.copy(state)
+        clip_pool = copy.copy(new_state.get('media_pool', {})).setdefault('clip', {})
+
+        clip_pool[self.index] = {
+            'name': self.name,
+            'used': self.used,
+            'frame_count': self.frame_count
+        }
+
+        return new_state
+
 
 class MediaPoolUnknownFM(BaseCommand):
     name = b'MPfM'
     format = Struct(
         'data' / GreedyBytes
     )
+
+    def apply_to_state(self, state):
+        return state
