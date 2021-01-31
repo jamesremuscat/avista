@@ -18,12 +18,11 @@ class DownstreamKeyerSource(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        dsk = copy.copy(new_state.setdefault('dsks', {}).get(self.index, {}))
+        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
+        dsk = new_state['dsks'].get(self.index, {})
 
         dsk['fill_source'] = self.fill_source
         dsk['key_source'] = self.key_source
-
-        new_state['dsks'][self.index] = dsk
 
         return new_state
 
@@ -48,7 +47,8 @@ class DownstreamKeyerProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        dsk = copy.copy(new_state.setdefault('dsks', {}).get(self.index, {}))
+        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
+        dsk = new_state['dsks'].get(self.index, {})
 
         dsk['tie'] = self.tie
         dsk['rate'] = self.rate
@@ -82,7 +82,8 @@ class DownstreamKeyerState(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        dsk = copy.copy(new_state.setdefault('dsks', {}).get(self.index, {}))
+        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
+        dsk = new_state['dsks'].get(self.index, {})
 
         dsk['state'] = {
             'on_air': self.on_air,

@@ -23,7 +23,8 @@ class AudioMixerInput(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        input = new_state.setdefault('audio_sources', {}).setdefault(self.source, {})
+        new_state['audio_sources'] = copy.copy(new_state.get('audio_sources', {}))
+        input = new_state['audio_sources'].setdefault(self.source, {})
 
         input['type'] = self.type
         input['from_media_player'] = self.from_media_player

@@ -28,8 +28,9 @@ class InputProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        new_state['sources'] = copy.copy(new_state.get('sources', {}))
 
-        source = new_state.setdefault('sources', {}).setdefault(self.id, {})
+        source = new_state['sources'].setdefault(self.id, {})
         source['name'] = self.name
         source['short_name'] = self.short_name
         source['names_are_default'] = self.are_names_default
@@ -51,7 +52,8 @@ class MultiviewVideoMode(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mvw_config = new_state.setdefault('config', {}).setdefault('multiviewers', {}).setdefault('video_modes', {})
+        new_state['config'] = copy.copy(new_state.get('config', {}))
+        mvw_config = new_state['config'].setdefault('multiviewers', {}).setdefault('video_modes', {})
 
         mvw_config[self.core_video_mode] = self.multiview_video_mode
         return new_state
@@ -66,7 +68,8 @@ class MultiviewLayout(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
+        mvw = new_state['multiviewers'].setdefault(self.index, {})
         mvw['layout'] = self.layout
         return new_state
 
@@ -81,7 +84,8 @@ class MultiviewWindowVUMeter(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
+        mvw = new_state['multiviewers'].setdefault(self.index, {})
         window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
         window['vu_meter_enabled'] = self.enabled
         return new_state
@@ -97,7 +101,8 @@ class MultiviewWindowSafeArea(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
+        mvw = new_state['multiviewers'].setdefault(self.index, {})
         window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
         window['safe_area_enabled'] = self.enabled
         return new_state
@@ -113,7 +118,8 @@ class MultiviewInput(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        mvw = new_state.setdefault('multiviewers', {}).setdefault(self.index, {})
+        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
+        mvw = new_state['multiviewers'].setdefault(self.index, {})
         window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
         window['source'] = self.source
         return new_state

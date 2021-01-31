@@ -96,9 +96,9 @@ class Device(ApplicationSession):
     def broadcast_topic(self):
         return 'avista.devices.{}'.format(self.name)
 
-    def broadcast_device_message(self, msg_type, data=None, **kwargs):
+    def broadcast_device_message(self, msg_type, data=None, subtopic=None, **kwargs):
         self.publish(
-            self.broadcast_topic,
+            '{}/{}'.format(self.broadcast_topic, subtopic) if subtopic else self.broadcast_topic,
             {
                 'type': msg_type,
                 'data': data

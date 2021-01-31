@@ -9,6 +9,7 @@ class ATEM(NetworkDevice):
 
     def __init__(self, *args, **kwargs):
         self._state = {}
+        self._prev_state = {}
         super(ATEM, self).__init__(*args, **kwargs)
 
     def create_protocol(self):
@@ -29,6 +30,24 @@ class ATEM(NetworkDevice):
 
     def receive_command(self, command):
         new_state = command.apply_to_state(self._state)
+
+        self._prev_state = self._state
         self._state = new_state
+
         if new_state.get('state', {}).get('initialized'):
-            print(self._state)
+            pass  # print(self._state)
+
+        changed_something = False
+        for nsk in new_state.keys():
+            if nsk not in self._prev_state or new_state[nsk] is not self._prev_state[nsk]:
+                # print('Command {} changed key {}'.format(command.__class__.__name__, nsk))
+                changed_something = True
+                self.broadcast_device_message(
+                    nsk,
+                    subtopic=nsk,
+                    data=new_state[nsk],
+                    retain=True
+                )
+
+        if not changed_something:
+            print('Command {} changed... nothing?'.format(command.__class__.__name__))

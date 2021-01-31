@@ -17,7 +17,8 @@ class MediaPoolFrameDescription(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        frame_pool = copy.copy(new_state.get('media_pool', {})).setdefault('frames', {})
+        media = copy.copy(new_state.get('media_pool', {}))
+        frame_pool = media.setdefault('frames', {})
 
         frame_pool[self.index] = {
             'file_type': self.file_type,
@@ -25,6 +26,8 @@ class MediaPoolFrameDescription(BaseCommand):
             'hash': self.hash,
             'filename': self.filename
         }
+
+        new_state['media_pool'] = media
 
         return new_state
 
@@ -40,13 +43,16 @@ class MediaPoolClipDescription(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        clip_pool = copy.copy(new_state.get('media_pool', {})).setdefault('clip', {})
+        media = copy.copy(new_state.get('media_pool', {}))
+        clip_pool = media.setdefault('clip', {})
 
         clip_pool[self.index] = {
             'name': self.name,
             'used': self.used,
             'frame_count': self.frame_count
         }
+
+        new_state['media_pool'] = media
 
         return new_state
 

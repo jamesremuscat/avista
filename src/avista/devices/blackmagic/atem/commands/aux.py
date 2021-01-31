@@ -16,7 +16,8 @@ class AuxSource(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
-        new_state.setdefault('auxes', {})[self.index] = {
+        new_state['auxes'] = copy.copy(new_state.get('auxes'))
+        new_state['auxes'][self.index] = {
             'source': self.source
         }
 

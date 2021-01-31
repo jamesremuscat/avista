@@ -18,8 +18,10 @@ class PreviewInput(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me['preview'] = self.source
         return new_state
 
@@ -34,8 +36,10 @@ class ProgramInput(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me['program'] = self.source
         return new_state
 
@@ -64,7 +68,10 @@ class TransitionProperties(BaseCommand):
     def apply_to_state(self, state):
         new_state = copy.copy(state)
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
+
+        me = mes.setdefault(self.index, {})
         me['transition'] = {
             'style': self.style,
             'next': {
@@ -96,8 +103,10 @@ class TransitionPreview(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me.setdefault('transition', {})['preview'] = self.enabled
         return new_state
 
@@ -115,8 +124,10 @@ class TransitionPosition(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me.setdefault('transition', {})['position'] = {
             'in_transition': self.in_transition,
             'frames_remaining': self.frames_remaining,
@@ -135,8 +146,10 @@ class TransitionMixProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me.setdefault('transition', {}).setdefault('properties', {})['mix'] = {
             'rate': self.rate
         }
@@ -153,8 +166,10 @@ class TransitionDipProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         me.setdefault('transition', {}).setdefault('properties', {})['dip'] = {
             'rate': self.rate,
             'source': self.source
@@ -176,8 +191,10 @@ class KeyerOnAir(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
 
         me['keyers'][self.key_index] = copy.copy(keyer)
@@ -207,8 +224,10 @@ class KeyerBaseProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
 
         me['keyers'][self.key_index] = copy.copy(keyer)
@@ -243,8 +262,10 @@ class KeyLumaProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
 
         me['keyers'][self.key_index] = copy.copy(keyer)
@@ -273,8 +294,10 @@ class KeyChromaProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        mes = copy.copy(new_state.get('mes', {}))
+        new_state['mes'] = mes
 
-        me = new_state.setdefault('mes', {}).setdefault(self.index, {})
+        me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
 
         me['keyers'][self.key_index] = copy.copy(keyer)

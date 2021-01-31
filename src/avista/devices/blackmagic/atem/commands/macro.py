@@ -18,8 +18,9 @@ class MacroProperties(BaseCommand):
 
     def apply_to_state(self, state):
         new_state = copy.copy(state)
+        new_state['macros'] = copy.copy(new_state.get('macros', {}))
 
-        macro = new_state.setdefault('macros', {}).setdefault(self.id, {})
+        macro = new_state['macros'].setdefault(self.id, {})
         macro['used'] = self.used
         macro['name'] = self.name
         macro['description'] = self.description
