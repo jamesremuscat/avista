@@ -14,6 +14,7 @@ from .macro import *
 from .media import *
 from .mix_effects import *
 from .settings import *
+from .tally import *
 
 
 log = txaio.make_logger()
