@@ -3,8 +3,6 @@ from construct import Struct, Flag, Int8ub, Int16ub, Int16sb, Padding, Rebuild, 
 from avista.devices.blackmagic.atem.constants import AudioSource, AudioSourceType, AudioSourcePlugType, AudioMixOption
 from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
-import copy
-
 
 class AudioMixerInput(BaseCommand):
     name = b'AMIP'

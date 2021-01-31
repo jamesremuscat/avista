@@ -33,7 +33,7 @@ class Packet(recordclass('Packet', ['bitmask', 'size', 'uid', 'ack_id', 'package
     def create(bitmask, uid, ack_id, package_id=0, payload=b''):
         return Packet(
             bitmask,
-            0,
+            len(payload) + SIZE_OF_HEADER,
             uid,
             ack_id,
             package_id,
@@ -51,4 +51,8 @@ class Packet(recordclass('Packet', ['bitmask', 'size', 'uid', 'ack_id', 'package
         buffer += struct.pack('!H', self.ack_id)
         buffer += struct.pack('!I', 0)
         buffer += struct.pack('!H', self.package_id)
+        if self.payload:
+            buffer += struct.pack('!H', payload_size + 4)
+            buffer += b'\x00\x00'
+            buffer += self.payload
         return buffer

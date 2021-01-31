@@ -1,6 +1,9 @@
+from avista.core import expose
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 
+from .commands.mix_effects import SetProgramInput
+from .constants import VideoSource
 from .protocol import ATEMProtocol
 
 
@@ -53,3 +56,8 @@ class ATEM(NetworkDevice):
                 'Command {cmd} changed... nothing?',
                 cmd=command.__class__.__name__
             )
+
+    @expose
+    def set_program_input(self, input, me=0):
+        cmd = SetProgramInput(source=VideoSource(input), index=me)
+        self.get_protocol().send_command(cmd)

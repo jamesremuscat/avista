@@ -1,3 +1,4 @@
+from twisted.internet import reactor
 from twisted.internet.protocol import DatagramProtocol
 
 from .commands import CommandParser
@@ -32,6 +33,13 @@ class ATEMProtocol(DatagramProtocol):
         )
         self.send_packet(p)
 
+    def connectionRefused(self):
+        self.log.warn('Connection refused, sadface')
+        reactor.callLater(
+            5.0,
+            self.startProtocol
+        )
+
     def datagramReceived(self, datagram, _):
         packet = Packet.parse(datagram)
         if packet:
@@ -59,3 +67,12 @@ class ATEMProtocol(DatagramProtocol):
             packet.package_id = self._packet_counter
         self.log.debug('Sending packet {packet}', packet=packet)
         self.transport.write(packet.to_bytes())
+
+    def send_command(self, command):
+        packet = Packet.create(
+            PacketType.ACK_REQUEST,
+            self._current_uid,
+            0,
+            payload=command.to_bytes()
+        )
+        self.send_packet(packet)

@@ -24,6 +24,15 @@ class PreviewInput(BaseCommand):
         return new_state
 
 
+class SetProgramInput(BaseCommand):
+    name = b'CPgI'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(1),
+        'source' / EnumAdapter(VideoSource)(Int16ub)
+    )
+
+
 class ProgramInput(BaseCommand):
     name = b'PrgI'
     format = Struct(
