@@ -1,7 +1,7 @@
 from construct import Struct, Flag, Int8ub, Int16ub, Int16sb, Padding, Rebuild, len_, this
 
 from avista.devices.blackmagic.atem.constants import AudioSource, AudioSourceType, AudioSourcePlugType, AudioMixOption
-from .base import BaseCommand, EnumAdapter
+from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
 import copy
 
@@ -22,9 +22,8 @@ class AudioMixerInput(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['audio_sources'] = copy.copy(new_state.get('audio_sources', {}))
-        input = new_state['audio_sources'].setdefault(self.source, {})
+        new_state, audio_sources = clone_state_with_key(state, 'audio_sources')
+        input = audio_sources.setdefault(self.source, {})
 
         input['type'] = self.type
         input['from_media_player'] = self.from_media_player
@@ -44,14 +43,13 @@ class AudioMixerMaster(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['audio'] = copy.copy(state.get('audio', {}))
+        new_state, audio = clone_state_with_key(state, 'audio')
 
         master = {
             'volume': self.volume
         }
 
-        new_state['audio']['master'] = master
+        audio['master'] = master
         return new_state
 
 
@@ -69,8 +67,7 @@ class AudioMixerMonitor(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['audio'] = copy.copy(state.get('audio', {}))
+        new_state, audio = clone_state_with_key(state, 'audio')
 
         monitor = {
             'enabled': self.enabled,
@@ -81,7 +78,7 @@ class AudioMixerMonitor(BaseCommand):
             'dim': self.dim
         }
 
-        new_state['audio']['monitor'] = monitor
+        audio['monitor'] = monitor
         return new_state
 
 
@@ -96,15 +93,14 @@ class AudioMixerTally(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['audio'] = copy.copy(state.get('audio', {}))
+        new_state, audio = clone_state_with_key(state, 'audio')
 
         tally = {}
 
         for source in self.sources:
             tally[source.source] = source.is_mixed_in
 
-        new_state['audio']['tally'] = tally
+        audio['tally'] = tally
         return new_state
 
 
@@ -116,8 +112,7 @@ class AudioFollowVideo(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['audio'] = copy.copy(state.get('audio', {}))
+        new_state, audio = clone_state_with_key(state, 'audio')
 
-        new_state['audio']['afv'] = self.enabled
+        audio['afv'] = self.enabled
         return new_state

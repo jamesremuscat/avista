@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalPortType, MEAvailability, \
     MultiviewLayout, SourceAvailability, VideoSource, VideoMode
 from construct import Adapter, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter
+from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter, clone_state_with_key
 
 import copy
 
@@ -27,10 +27,9 @@ class InputProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['sources'] = copy.copy(new_state.get('sources', {}))
+        new_state, sources = clone_state_with_key(state, 'sources')
 
-        source = new_state['sources'].setdefault(self.id, {})
+        source = sources.setdefault(self.id, {})
         source['name'] = self.name
         source['short_name'] = self.short_name
         source['names_are_default'] = self.are_names_default
@@ -51,9 +50,8 @@ class MultiviewVideoMode(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['config'] = copy.copy(new_state.get('config', {}))
-        mvw_config = new_state['config'].setdefault('multiviewers', {}).setdefault('video_modes', {})
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault('video_modes', {})
 
         mvw_config[self.core_video_mode] = self.multiview_video_mode
         return new_state
@@ -67,10 +65,9 @@ class MultiviewLayout(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
-        mvw = new_state['multiviewers'].setdefault(self.index, {})
-        mvw['layout'] = self.layout
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        mvw_config['layout'] = self.layout
         return new_state
 
 
@@ -83,10 +80,9 @@ class MultiviewWindowVUMeter(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
-        mvw = new_state['multiviewers'].setdefault(self.index, {})
-        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw_config.setdefault('windows', {}).setdefault(self.window_index, {})
         window['vu_meter_enabled'] = self.enabled
         return new_state
 
@@ -100,10 +96,9 @@ class MultiviewWindowSafeArea(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
-        mvw = new_state['multiviewers'].setdefault(self.index, {})
-        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw_config.setdefault('windows', {}).setdefault(self.window_index, {})
         window['safe_area_enabled'] = self.enabled
         return new_state
 
@@ -117,9 +112,8 @@ class MultiviewInput(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['multiviewers'] = copy.copy(new_state.get('multiviewers', {}))
-        mvw = new_state['multiviewers'].setdefault(self.index, {})
-        window = mvw.setdefault('windows', {}).setdefault(self.window_index, {})
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        window = mvw_config.setdefault('windows', {}).setdefault(self.window_index, {})
         window['source'] = self.source
         return new_state

@@ -1,6 +1,6 @@
 from avista.devices.blackmagic.atem.constants import MediaPoolFileType
 from construct import Struct, Bytes, Const, Flag, Int8ub, Int16ub, CString, Padding, GreedyBytes
-from .base import BaseCommand, EnumAdapter
+from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
 import copy
 
@@ -16,8 +16,7 @@ class MediaPoolFrameDescription(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        media = copy.copy(new_state.get('media_pool', {}))
+        new_state, media = clone_state_with_key(state, 'media_pool')
         frame_pool = media.setdefault('frames', {})
 
         frame_pool[self.index] = {
@@ -26,8 +25,6 @@ class MediaPoolFrameDescription(BaseCommand):
             'hash': self.hash,
             'filename': self.filename
         }
-
-        new_state['media_pool'] = media
 
         return new_state
 
@@ -42,8 +39,7 @@ class MediaPoolClipDescription(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        media = copy.copy(new_state.get('media_pool', {}))
+        new_state, media = clone_state_with_key(state, 'media_pool')
         clip_pool = media.setdefault('clip', {})
 
         clip_pool[self.index] = {
@@ -51,8 +47,6 @@ class MediaPoolClipDescription(BaseCommand):
             'used': self.used,
             'frame_count': self.frame_count
         }
-
-        new_state['media_pool'] = media
 
         return new_state
 

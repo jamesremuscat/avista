@@ -1,5 +1,5 @@
 from construct import Struct, Flag, Int16ub, PaddedString, this
-from .base import BaseCommand
+from .base import BaseCommand, clone_state_with_key
 
 import copy
 
@@ -17,10 +17,9 @@ class MacroProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['macros'] = copy.copy(new_state.get('macros', {}))
+        new_state, macros = clone_state_with_key(state, 'macros')
 
-        macro = new_state['macros'].setdefault(self.id, {})
+        macro = macros.setdefault(self.id, {})
         macro['used'] = self.used
         macro['name'] = self.name
         macro['description'] = self.description

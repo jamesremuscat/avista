@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import KeyType, VideoSource
 from construct import Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter
+from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
 import copy
 
@@ -17,9 +17,8 @@ class DownstreamKeyerSource(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
-        dsk = new_state['dsks'].get(self.index, {})
+        new_state, dsks = clone_state_with_key(state, 'dsks')
+        dsk = dsks.get(self.index, {})
 
         dsk['fill_source'] = self.fill_source
         dsk['key_source'] = self.key_source
@@ -46,9 +45,8 @@ class DownstreamKeyerProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
-        dsk = new_state['dsks'].get(self.index, {})
+        new_state, dsks = clone_state_with_key(state, 'dsks')
+        dsk = dsks.get(self.index, {})
 
         dsk['tie'] = self.tie
         dsk['rate'] = self.rate
@@ -81,9 +79,8 @@ class DownstreamKeyerState(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['dsks'] = copy.copy(new_state.get('dsks', {}))
-        dsk = new_state['dsks'].get(self.index, {})
+        new_state, dsks = clone_state_with_key(state, 'dsks')
+        dsk = dsks.get(self.index, {})
 
         dsk['state'] = {
             'on_air': self.on_air,

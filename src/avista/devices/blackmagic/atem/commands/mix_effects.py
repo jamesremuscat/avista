@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import KeyType, TransitionStyle, VideoSource
 from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter
+from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key
 
 
 import copy
@@ -17,9 +17,7 @@ class PreviewInput(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me['preview'] = self.source
@@ -35,9 +33,7 @@ class ProgramInput(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me['program'] = self.source
@@ -66,10 +62,7 @@ class TransitionProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me['transition'] = {
@@ -102,9 +95,7 @@ class TransitionPreview(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me.setdefault('transition', {})['preview'] = self.enabled
@@ -123,9 +114,7 @@ class TransitionPosition(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me.setdefault('transition', {})['position'] = {
@@ -145,9 +134,7 @@ class TransitionMixProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me.setdefault('transition', {}).setdefault('properties', {})['mix'] = {
@@ -165,9 +152,7 @@ class TransitionDipProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         me.setdefault('transition', {}).setdefault('properties', {})['dip'] = {
@@ -190,9 +175,7 @@ class KeyerOnAir(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
@@ -223,9 +206,7 @@ class KeyerBaseProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
@@ -261,9 +242,7 @@ class KeyLumaProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})
@@ -293,9 +272,7 @@ class KeyChromaProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        mes = copy.copy(new_state.get('mes', {}))
-        new_state['mes'] = mes
+        new_state, mes = clone_state_with_key(state, 'mes')
 
         me = mes.setdefault(self.index, {})
         keyer = me.setdefault('keyers', {}).get(self.key_index, {})

@@ -1,5 +1,7 @@
 from construct import Adapter, Const
 
+import copy
+
 
 def EnumAdapter(enum_class):
     class _EnumAdapter(Adapter):
@@ -81,3 +83,10 @@ class BaseCommand(object):
     def apply_to_state(self, state):
         print('WARN Default implementation of apply_to_state for {}'.format(self.__class__.__name__))
         return state
+
+
+def clone_state_with_key(state, key, default=None):
+    new_state = copy.copy(state)
+    new_state[key] = copy.copy(state.get(key, default or {}))
+
+    return (new_state, new_state[key])

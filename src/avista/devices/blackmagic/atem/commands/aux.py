@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import VideoSource
 from construct import Struct, Int8ub, Int16ub, Padding
 
-from .base import BaseCommand, EnumAdapter
+from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
 import copy
 
@@ -15,9 +15,8 @@ class AuxSource(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state = copy.copy(state)
-        new_state['auxes'] = copy.copy(new_state.get('auxes'))
-        new_state['auxes'][self.index] = {
+        new_state, auxes = clone_state_with_key(state, 'auxes')
+        auxes[self.index] = {
             'source': self.source
         }
 
