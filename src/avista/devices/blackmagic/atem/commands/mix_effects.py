@@ -3,7 +3,6 @@ from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key
 
-
 import copy
 
 

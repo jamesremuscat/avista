@@ -2,8 +2,6 @@ from avista.devices.blackmagic.atem.constants import MediaPoolFileType
 from construct import Struct, Bytes, Const, Flag, Int8ub, Int16ub, CString, Padding, GreedyBytes
 from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
-import copy
-
 
 class MediaPoolFrameDescription(BaseCommand):
     name = b'MPfe'

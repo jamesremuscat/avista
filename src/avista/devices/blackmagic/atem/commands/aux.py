@@ -3,8 +3,6 @@ from construct import Struct, Int8ub, Int16ub, Padding
 
 from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
-import copy
-
 
 class AuxSource(BaseCommand):
     name = b'AuxS'

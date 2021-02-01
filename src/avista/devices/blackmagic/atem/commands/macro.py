@@ -1,8 +1,6 @@
 from construct import Struct, Flag, Int16ub, PaddedString, this
 from .base import BaseCommand, clone_state_with_key
 
-import copy
-
 
 class MacroProperties(BaseCommand):
     name = b'MPrp'

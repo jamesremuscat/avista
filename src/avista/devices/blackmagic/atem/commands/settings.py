@@ -3,8 +3,6 @@ from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalP
 from construct import Adapter, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter, clone_state_with_key
 
-import copy
-
 
 ExternalPortTypeAdapter = EnumAdapter(ExternalPortType)
 InternalPortTypeAdapter = EnumAdapter(InternalPortType)
