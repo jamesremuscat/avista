@@ -23,6 +23,15 @@ class PreviewInput(BaseCommand):
         return new_state
 
 
+class SetPreviewInput(BaseCommand):
+    name = b'CPvI'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(1),
+        'source' / EnumAdapter(VideoSource)(Int16ub)
+    )
+
+
 class SetProgramInput(BaseCommand):
     name = b'CPgI'
     format = Struct(
@@ -46,6 +55,22 @@ class ProgramInput(BaseCommand):
         me = mes.setdefault(self.index, {})
         me['program'] = self.source
         return new_state
+
+
+class PerformCut(BaseCommand):
+    name = b'DCut'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(3)
+    )
+
+
+class PerformAuto(BaseCommand):
+    name = b'DAut'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(3)
+    )
 
 
 TransitionSelectionField = BitStruct(
