@@ -14,6 +14,7 @@ from .macro import *
 from .media import *
 from .mix_effects import *
 from .settings import *
+from .supersource import *
 from .tally import *
 
 

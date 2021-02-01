@@ -200,3 +200,10 @@ class KeyType(IntEnum):
 class SDI3GOutputLevel(IntEnum):
     LEVEL_B = 0
     LEVEL_A = 1
+
+
+class BevelType(IntEnum):
+    NONE = 0
+    IN_OUT = 1
+    IN = 2
+    OUT = 3
