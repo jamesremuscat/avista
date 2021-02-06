@@ -1,10 +1,12 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import DatagramProtocol
+from twisted.internet.task import LoopingCall
 
 from .commands import CommandParser
 from .packet import Packet, PacketType, SIZE_OF_HEADER
 
 import struct
+import time
 
 
 class ATEMProtocol(DatagramProtocol):
@@ -17,8 +19,12 @@ class ATEMProtocol(DatagramProtocol):
         self._current_uuid = 0x1337
         self._is_initialised = False
 
+        self._last_received = None
+        self._timeout = device.config.extra.get('timeout', 10)
+        self._timeout_checker = LoopingCall(self._check_timeout)
+
     def startProtocol(self):
-        if not self._is_initialised:
+        if self.transport and not self._is_initialised:
             self.log.info(
                 'Trying to connect to ATEM on {host}:{port}',
                 host=self.device.host,
@@ -46,11 +52,28 @@ class ATEMProtocol(DatagramProtocol):
                 self.startProtocol
             )
 
+    def _check_timeout(self):
+        now = time.time()
+        if self._is_initialised and self._last_received and self._last_received + self._timeout < now:
+            self.log.warn(
+                'Connection to ATEM at {host}:{port} timed out (waited {delta:.1f} secs)',
+                host=self.device.host,
+                port=self.device.port,
+                delta=now - self._last_received
+            )
+            self._timeout_checker.stop()
+            self._packet_counter = 0
+            self._current_uuid = 0x1337
+            self._is_initialised = False
+            self._last_received = None
+            self.startProtocol()
+
     def datagramReceived(self, datagram, _):
         packet = Packet.parse(datagram)
         if packet:
             self._current_uid = packet.uid
             self.log.debug('Received packet {packet}', packet=packet)
+            self._last_received = time.time()
             if packet.payload:
                 commands = self._command_parser.parse_commands(packet.payload)
                 if commands:
@@ -65,6 +88,8 @@ class ATEMProtocol(DatagramProtocol):
                         host=self.device.host,
                         port=self.device.port
                     )
+                    self._timeout_checker.start(self._timeout)
+
                 ack = Packet.create(
                     PacketType.ACK,
                     self._current_uid,
