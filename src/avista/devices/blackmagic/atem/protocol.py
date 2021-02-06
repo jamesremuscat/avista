@@ -100,6 +100,8 @@ class ATEMProtocol(DatagramProtocol):
     def send_packet(self, packet):
         if not (packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK)):
             self._packet_counter += 1
+            if self._packet_counter >= 32768:
+                self._packet_counter = 0
             packet.package_id = self._packet_counter
         self.log.debug('Sending packet {packet}', packet=packet)
         self.transport.write(packet.to_bytes())
