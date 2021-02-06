@@ -18,27 +18,33 @@ class ATEMProtocol(DatagramProtocol):
         self._is_initialised = False
 
     def startProtocol(self):
-        self.transport.connect(self.device.host, self.device.port)
-        self._is_initialised = False
+        if not self._is_initialised:
+            self.log.info(
+                'Trying to connect to ATEM on {host}:{port}',
+                host=self.device.host,
+                port=self.device.port
+            )
 
-        payload = struct.pack('!I', 0x01000000)
-        payload += struct.pack('!I', 0x00)
+            if self.transport and not self.transport._connectedAddr:
+                self.transport.connect(self.device.host, self.device.port)
 
-        p = Packet.create(
-            PacketType.HELLO_PACKET,
-            self._current_uuid,
-            0,
-            0,
-            payload
-        )
-        self.send_packet(p)
+            payload = struct.pack('!I', 0x01000000)
+            payload += struct.pack('!I', 0x00)
 
-    def connectionRefused(self):
-        self.log.warn('Connection refused, sadface')
-        reactor.callLater(
-            5.0,
-            self.startProtocol
-        )
+            p = Packet.create(
+                PacketType.HELLO_PACKET,
+                self._current_uuid,
+                0,
+                0,
+                payload
+            )
+            self.send_packet(p)
+
+            # Send another hello in 10s if we haven't connected by then
+            reactor.callLater(
+                10.0,
+                self.startProtocol
+            )
 
     def datagramReceived(self, datagram, _):
         packet = Packet.parse(datagram)
@@ -52,14 +58,19 @@ class ATEMProtocol(DatagramProtocol):
                         self.device.receive_command(command)
 
             if packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK_REQUEST):
-                self._is_initialised = False
+                if not self._is_initialised:
+                    self._is_initialised = True
+                    self.log.info(
+                        'Connection to ATEM at {host}:{port} established',
+                        host=self.device.host,
+                        port=self.device.port
+                    )
                 ack = Packet.create(
                     PacketType.ACK,
                     self._current_uid,
                     0
                 )
                 self.send_packet(ack)
-                self._is_initialised = True
 
     def send_packet(self, packet):
         if not (packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK)):
