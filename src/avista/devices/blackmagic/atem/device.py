@@ -2,6 +2,7 @@ from avista.core import expose
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 
+from .commands.aux import SetAuxSource
 from .commands.mix_effects import SetProgramInput, SetPreviewInput, PerformAuto, PerformCut
 from .constants import VideoSource
 from .protocol import ATEMProtocol
@@ -76,3 +77,12 @@ class ATEM(NetworkDevice):
     def perform_auto(self, me=0):
         cmd = PerformAuto(index=me)
         self.get_protocol().send_command(cmd)
+
+    @expose
+    def set_aux_source(self, aux, source):
+        self.get_protocol().send_command(
+            SetAuxSource(
+                index=aux,
+                source=VideoSource(source)
+            )
+        )

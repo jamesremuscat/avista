@@ -1,5 +1,5 @@
 from avista.devices.blackmagic.atem.constants import VideoSource
-from construct import Struct, Int8ub, Int16ub, Padding
+from construct import Const, Struct, Int8ub, Int16ub, Padding
 
 from .base import BaseCommand, EnumAdapter, clone_state_with_key
 
@@ -19,3 +19,12 @@ class AuxSource(BaseCommand):
         }
 
         return new_state
+
+
+class SetAuxSource(BaseCommand):
+    name = b'CAuS'
+    format = Struct(
+        Const(1, Int8ub),
+        'index' / Int8ub,
+        'source' / EnumAdapter(VideoSource)(Int16ub)
+    )
