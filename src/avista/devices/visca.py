@@ -46,6 +46,7 @@ def constrainPanTiltSpeed(func):
         elf.checkPan(panSpeed)
         elf.checkTilt(tiltSpeed)
         await func(elf, panSpeed, tiltSpeed)
+    inner.__name__ = func.__name__
     return inner
 
 
@@ -58,19 +59,19 @@ class VISCACommandsMixin(object):
 
     def checkPan(self, pan):
         if pan < 1 or pan > self.maxPanSpeed:
-            raise InvalidArgumentException("Pan speed {} out of range: 1-{}".format(pan, self.maxPanSpeed))
+            raise ValueError("Pan speed {} out of range: 1-{}".format(pan, self.maxPanSpeed))
 
     def checkTilt(self, tilt):
         if tilt < 1 or tilt > self.maxTiltSpeed:
-            raise InvalidArgumentException("Tilt speed {} out of range: 1-{}".format(tilt, self.maxTiltSpeed))
+            raise ValueError("Tilt speed {} out of range: 1-{}".format(tilt, self.maxTiltSpeed))
 
     def checkZoom(self, zoom):
         if zoom < self.minZoomSpeed or zoom > self.maxZoomSpeed:
-            raise InvalidArgumentException("Zoom speed {} out of range: {}-{}".format(zoom, self.minZoomSpeed, self.maxZoomSpeed))
+            raise ValueError("Zoom speed {} out of range: {}-{}".format(zoom, self.minZoomSpeed, self.maxZoomSpeed))
 
     def checkPreset(self, preset_idx):
         if preset_idx < 0 or preset_idx >= self.maxPresets:
-            raise InvalidArgumentException("Preset {} out of range: 0-{}".format(preset_idx, self.maxPresets - 1))
+            raise ValueError("Preset {} out of range: 0-{}".format(preset_idx, self.maxPresets - 1))
 
     @property
     def maxPanSpeed(self):
@@ -338,6 +339,8 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
 
     def on_error(self, error_code):
         self.log.error("VISCA error {error_code}", error_code=error_code)
+        if self._command_lock.locked:
+            self._command_lock.release()
 
     async def sendVISCA(self, visca, with_lock=None):
         if with_lock is None:
