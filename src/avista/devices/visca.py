@@ -149,7 +149,7 @@ class VISCACommandsMixin(object):
         return await self.sendVISCA([0x01, 0x04, 0x07, 0x30 + speed])
 
     @expose
-    async def zoomStop(self):
+    async def zoomStop(self, speed):
         return await self.sendVISCA([0x01, 0x04, 0x07, 0x00])
 
     @expose
@@ -329,6 +329,8 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
 
     def on_complete(self):
         self.log.debug('VISCA command execution complete')
+        if self._command_lock.locked:
+            self._command_lock.release()
 
     def on_response(self, response_data):
         self.log.debug('Response: {data}', data=response_data)
