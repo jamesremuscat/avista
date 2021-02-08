@@ -28,13 +28,14 @@ class InputProperties(BaseCommand):
         new_state, sources = clone_state_with_key(state, 'sources')
 
         source = sources.setdefault(self.id, {})
+        source['id'] = self.id
         source['name'] = self.name
         source['short_name'] = self.short_name
         source['names_are_default'] = self.are_names_default
         # Spammy!
         # source['available_external_ports'] = self.available_external_ports
         # source['external_port_type'] = self.external_port_type
-        # source['internal_port_type'] = self.internal_port_type
+        source['internal_port_type'] = self.internal_port_type
         source['me_availability'] = self.me_availability
 
         return new_state
