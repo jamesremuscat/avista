@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import KeyType, VideoSource
 from construct import Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
-from .base import BaseCommand, EnumAdapter, clone_state_with_key
+from .base import BaseCommand, EnumAdapter, clone_state_with_key, recalculate_synthetic_tally
 
 
 class DownstreamKeyerSource(BaseCommand):
@@ -21,7 +21,7 @@ class DownstreamKeyerSource(BaseCommand):
         dsk['fill_source'] = self.fill_source
         dsk['key_source'] = self.key_source
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class DownstreamKeyerProperties(BaseCommand):
@@ -89,4 +89,4 @@ class DownstreamKeyerState(BaseCommand):
 
         new_state['dsks'][self.index] = dsk
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)

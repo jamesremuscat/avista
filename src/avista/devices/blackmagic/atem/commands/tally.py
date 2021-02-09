@@ -1,7 +1,7 @@
 from construct import BitStruct, Struct, Flag, Int16ub, Padding, Rebuild, len_, this
 
 from avista.devices.blackmagic.atem.constants import VideoSource
-from .base import BaseCommand, EnumAdapter, clone_state_with_key
+from .base import BaseCommand, EnumAdapter, clone_state_with_key, recalculate_synthetic_tally
 
 
 class TallyBySource(BaseCommand):
@@ -29,4 +29,4 @@ class TallyBySource(BaseCommand):
             for source, tally in map(lambda s: (s.source, s.tally), self.sources)
         }
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)

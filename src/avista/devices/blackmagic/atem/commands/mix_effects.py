@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import KeyType, TransitionStyle, VideoSource
 from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key
+from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, recalculate_synthetic_tally
 
 import copy
 
@@ -20,7 +20,7 @@ class PreviewInput(BaseCommand):
 
         me = mes.setdefault(self.index, {})
         me['preview'] = self.source
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class SetPreviewInput(BaseCommand):
@@ -54,7 +54,7 @@ class ProgramInput(BaseCommand):
 
         me = mes.setdefault(self.index, {})
         me['program'] = self.source
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class PerformCut(BaseCommand):
@@ -155,7 +155,7 @@ class TransitionPosition(BaseCommand):
             'frames_remaining': self.frames_remaining,
             'position': self.position
         }
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class TransitionMixProperties(BaseCommand):

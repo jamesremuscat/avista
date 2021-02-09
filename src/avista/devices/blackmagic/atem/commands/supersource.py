@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import BevelType, VideoSource
 from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
 
-from .base import BaseCommand, EnumAdapter, clone_state_with_key
+from .base import BaseCommand, EnumAdapter, clone_state_with_key, recalculate_synthetic_tally
 
 
 class SuperSourceProperties(BaseCommand):
@@ -62,7 +62,7 @@ class SuperSourceProperties(BaseCommand):
             }
         }
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class SuperSourceV8Properties(BaseCommand):
@@ -94,7 +94,7 @@ class SuperSourceV8Properties(BaseCommand):
         my_ssrc['gain'] = self.gain
         my_ssrc['invert_key'] = self.invert_key
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class SuperSourceV8BorderProperties(BaseCommand):
@@ -183,7 +183,7 @@ class SuperSourceBoxProperties(BaseCommand):
             }
         }
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)
 
 
 class SuperSourceBoxV8Properties(BaseCommand):
@@ -228,4 +228,4 @@ class SuperSourceBoxV8Properties(BaseCommand):
             }
         }
 
-        return new_state
+        return recalculate_synthetic_tally(new_state)
