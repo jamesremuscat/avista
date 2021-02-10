@@ -3,8 +3,8 @@ from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 
 from .commands.aux import SetAuxSource
-from .commands.mix_effects import SetProgramInput, SetPreviewInput, PerformAuto, PerformCut
-from .constants import VideoSource
+from .commands.mix_effects import SetProgramInput, SetPreviewInput, PerformAuto, PerformCut, TransitionSelectionField, SetTransitionProperties
+from .constants import VideoSource, TransitionStyle
 from .protocol import ATEMProtocol
 
 
@@ -84,5 +84,27 @@ class ATEM(NetworkDevice):
             SetAuxSource(
                 index=aux,
                 source=VideoSource(source)
+            )
+        )
+
+    @expose
+    def set_transition_properties(self, style=None, background=None, key_1=None, key_2=None, key_3=None, key_4=None, me=0):
+        tie = TransitionSelectionField.parse(
+            TransitionSelectionField.build(
+                dict(
+                    background=background,
+                    key_1=key_1,
+                    key_2=key_2,
+                    key_3=key_3,
+                    key_4=key_4
+                )
+            )
+        )
+
+        self.get_protocol().send_command(
+            SetTransitionProperties(
+                style=TransitionStyle(style),
+                next=tie,
+                index=me
             )
         )

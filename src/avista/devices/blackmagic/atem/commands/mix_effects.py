@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import KeyType, TransitionStyle, VideoSource
-from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
+from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag, Rebuild, obj_, Default
 
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, recalculate_synthetic_tally
+from .base import BaseCommand, BaseSetCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, recalculate_synthetic_tally
 
 import copy
 
@@ -74,11 +74,11 @@ class PerformAuto(BaseCommand):
 
 
 TransitionSelectionField = BitStruct(
-    'background' / Flag,
-    'key_1' / Flag,
-    'key_2' / Flag,
-    'key_3' / Flag,
-    'key_4' / Flag,
+    'background' / Default(Flag, False),
+    'key_1' / Default(Flag, False),
+    'key_2' / Default(Flag, False),
+    'key_3' / Default(Flag, False),
+    'key_4' / Default(Flag, False),
     Padding(3)
 )
 
@@ -117,6 +117,34 @@ class TransitionProperties(BaseCommand):
             },
         }
         return new_state
+
+
+CTTp_mask = BitStruct(
+    'style' / Flag,
+    'next' / Flag,
+    Padding(6)
+)
+
+
+def _calculate_CTTp_mask(stp):
+    return CTTp_mask.parse(
+        CTTp_mask.build(
+            dict(
+                style=hasattr(stp, 'style'),
+                next=hasattr(stp, 'next')
+            )
+        )
+    )
+
+
+class SetTransitionProperties(BaseSetCommand):
+    name = b'CTTp'
+    format = Struct(
+        'mask' / Rebuild(CTTp_mask, lambda obj: _calculate_CTTp_mask(obj)),
+        'index' / Int8ub,
+        'style' / Default(EnumAdapter(TransitionStyle)(Int8ub), 0),
+        'next' / TransitionSelectionField
+    )
 
 
 class TransitionPreview(BaseCommand):

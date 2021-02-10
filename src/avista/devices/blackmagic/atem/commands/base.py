@@ -10,7 +10,7 @@ def EnumAdapter(enum_class):
             return enum_class(obj)
 
         def _encode(self, obj, context, path):
-            return obj.value
+            return obj.value if obj else None
     return _EnumAdapter
 
 
@@ -66,9 +66,12 @@ class BaseCommand(object):
         for subcon in self.format.subcons:
             if subcon.name and subcon.name[0] != "_":
                 if subcon.name not in kwargs:
-                    raise Exception('Missing needed value {}'.format(subcon.name))
+                    self.handle_missing_value(subcon.name)
                 else:
                     setattr(self, subcon.name, kwargs[subcon.name])
+
+    def handle_missing_value(self, value_name):
+        raise Exception('Missing needed value {}'.format(value_name))
 
     def to_bytes(self):
         return self.__class__._full_struct().build(self.__dict__)
@@ -84,6 +87,11 @@ class BaseCommand(object):
     def apply_to_state(self, state):
         print('WARN Default implementation of apply_to_state for {}'.format(self.__class__.__name__))
         return state
+
+
+class BaseSetCommand(BaseCommand):
+    def handle_missing_value(self, value_name):
+        pass
 
 
 def clone_state_with_key(state, key, default=None):

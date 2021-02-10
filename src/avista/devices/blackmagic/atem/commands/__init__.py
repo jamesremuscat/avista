@@ -5,7 +5,7 @@ import inspect
 import struct
 import txaio
 
-from .base import BaseCommand
+from .base import BaseCommand, BaseSetCommand
 from .audio import *
 from .aux import *
 from .config import *
@@ -46,7 +46,7 @@ for command_class in get_all_subclasses(BaseCommand):
             command_class.minimum_version,
             command_class
         ])
-    else:
+    elif command_class != BaseSetCommand:
         raise Exception('Command class without defined name: {}'.format(command_class))
 
 
