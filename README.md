@@ -72,6 +72,19 @@ Crossbar router process; this is convenient but there's no requirement to do
 so. Devices can be run on any machine with network access to the Crossbar
 router, and without the need to specify a configuration centrally.
 
+## Running devices outside of the router
+
+The easiest way to run separate devices is through the `avista-device` command:
+
+```bash
+$ avista-device -n MyDeviceName \
+  -o option1=value1 -o option2=value2 \
+  -r ws://router:8080/ws \
+  avista.devices.SomeDeviceClass
+```
+
+See `avista-device --help` for a full list of options.
+
 ## Connecting clients
 
 A system joining an `avista` network to issue commands to devices, or to view

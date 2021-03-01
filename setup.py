@@ -36,6 +36,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
+            'avista-device=avista.runner:run'
         ],
     }
 )
