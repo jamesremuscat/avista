@@ -106,7 +106,7 @@ def recalculate_synthetic_tally(state):
 
     tally['by_me'] = {}
 
-    for idx, me in new_state['mes'].items():
+    for idx, me in new_state.get('mes', {}).items():
         this_me = {}
 
         if me.get('preview'):
@@ -158,7 +158,7 @@ def recalculate_synthetic_tally(state):
                                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                                     this_me.setdefault(sssrc, {})['program'] = True
 
-        for source in new_state['sources']:
+        for source in new_state.get('sources', []):
             this_source = this_me.setdefault(source, {})
 
             if 'preview' not in this_source:

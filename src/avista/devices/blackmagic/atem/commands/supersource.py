@@ -163,7 +163,7 @@ class SuperSourceBoxProperties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state, ssrc = clone_state_with_key('super_source')
+        new_state, ssrc = clone_state_with_key(state, 'super_source')
         boxes = ssrc.setdefault(0, {}).setdefault('boxes', {})
 
         boxes[self.index] = {
@@ -208,7 +208,7 @@ class SuperSourceBoxV8Properties(BaseCommand):
     )
 
     def apply_to_state(self, state):
-        new_state, ssrc = clone_state_with_key('super_source')
+        new_state, ssrc = clone_state_with_key(state, 'super_source')
         boxes = ssrc.setdefault(self.ssrc_id, {}).setdefault('boxes', {})
 
         boxes[self.index] = {
