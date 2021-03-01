@@ -1,6 +1,8 @@
 from autobahn.twisted.wamp import ApplicationSession
+from autobahn.wamp.exception import ApplicationError
 from autobahn.wamp.types import PublishOptions, SubscribeOptions
 from twisted.internet import reactor
+from twisted.internet.defer import ensureDeferred
 from twisted.internet.task import LoopingCall
 from .constants import Messages, SystemPowerState, Topics, INFRASTRUCTURE_PUBLISH_OPTIONS
 
@@ -37,6 +39,14 @@ class Device(ApplicationSession):
             )
             await self.register(method, uri)
             self.log.info('Registered {uri}', uri=uri)
+
+        await self.subscribe(
+            self.on_infrastructure_message,
+            '()/{}'.format(Topics.INFRASTRUCTURE, Messages.SYSTEM_POWER_STATE),
+            SubscribeOptions(
+                get_retained=True
+            )
+        )
 
         await self.subscribe(
             self.on_infrastructure_message,
@@ -151,7 +161,7 @@ class DeviceManager(Device):
         self.broadcast_infrastructure_message(Messages.RE_REGISTER_ALL_DEVICES)
 
         self._update_task = LoopingCall(
-            self._maybe_publish_manifest
+            lambda: ensureDeferred(self._maybe_publish_manifest())
         )
         self._update_task.start(5)
 
@@ -159,16 +169,16 @@ class DeviceManager(Device):
         if self._update_task:
             self._update_task.stop()
 
-    def _maybe_publish_manifest(self):
+    async def _maybe_publish_manifest(self):
         # Check liveness of all our registered devices
         for device_name in list(self.devices.keys()):
             try:
-                result = self.call('{}._liveness_check'.format(device_name))
+                result = await self.call('{}._liveness_check'.format(device_name))
                 if result is False:
-                    self.devices.remove(device_name)
+                    del self.devices[device_name]
                     self._update_required = True
-            except Exception:
-                self.devices.remove(device_name)
+            except ApplicationError:
+                del self.devices[device_name]
                 self._update_required = True
 
         # If necessary, publish an updated manifest
