@@ -2,7 +2,7 @@ from avista.core import expose
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 
-from .commands.aux import SetAuxSource
+from .commands.auxes import SetAuxSource
 from .commands.mix_effects import SetProgramInput, SetPreviewInput, PerformAuto, PerformCut, TransitionSelectionField, SetTransitionProperties
 from .constants import VideoSource, TransitionStyle
 from .protocol import ATEMProtocol

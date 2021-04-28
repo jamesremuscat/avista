@@ -7,7 +7,7 @@ import txaio
 
 from .base import BaseCommand, BaseSetCommand
 from .audio import *
-from .aux import *
+from .auxes import *
 from .config import *
 from .dsk import *
 from .macro import *
