@@ -39,9 +39,11 @@ def EnumFlagAdapter(enum_class):
 
 class PaddedCStringAdapter(Adapter):
     def _decode(self, obj, context, path):
-        if '\x00' in obj:
-            end_of_string = obj.index('\x00')
-            return obj[:end_of_string]
+        if isinstance(obj, bytes):
+            if b'\x00' in obj:
+                end_of_string = obj.index(b'\x00')
+                return obj[:end_of_string].decode('utf-8')
+            return obj.decode('utf-8')
         return obj
 
     def _encode(self, obj, context, path):

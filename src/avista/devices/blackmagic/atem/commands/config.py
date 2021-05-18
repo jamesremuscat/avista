@@ -1,6 +1,6 @@
 from avista.devices.blackmagic.atem.constants import SDI3GOutputLevel, VideoMode
-from construct import BitStruct, Struct, Const, Flag, Int8ub, Int16ub, Int32ub, PaddedString, Padding
-from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key
+from construct import Bytes, BitStruct, Struct, Const, Flag, Int8ub, Int16ub, Int32ub, Padding
+from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, PaddedCStringAdapter
 
 import copy
 
@@ -24,7 +24,7 @@ class Version(BaseCommand):
 class ProductName(BaseCommand):
     name = b'_pin'
     format = Struct(
-        'name' / PaddedString(44, 'utf8')
+        'name' / PaddedCStringAdapter(Bytes(44))
     )
 
     def apply_to_state(self, state):

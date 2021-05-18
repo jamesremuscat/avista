@@ -1,6 +1,6 @@
 from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalPortType, MEAvailability, \
     MultiviewLayout, SourceAvailability, VideoSource, VideoMode
-from construct import Adapter, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this
+from construct import Adapter, Bytes, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this, Probe
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter, clone_state_with_key
 
 
@@ -13,8 +13,8 @@ class InputProperties(BaseCommand):
     name = b'InPr'
     format = Struct(
         'id' / EnumAdapter(VideoSource)(Int16ub),
-        'name' / PaddedCStringAdapter(PaddedString(20, 'utf-8')),
-        'short_name' / PaddedCStringAdapter(PaddedString(4, 'utf-8')),
+        'name' / PaddedCStringAdapter(Bytes(20)),
+        'short_name' / PaddedCStringAdapter(Bytes(4)),
         'are_names_default' / Flag,
         Padding(1),
         'available_external_ports' / EnumFlagAdapter(ExternalPortType)(Int16ub),
