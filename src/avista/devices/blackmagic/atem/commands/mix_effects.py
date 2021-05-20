@@ -223,7 +223,44 @@ class TransitionDipProperties(BaseCommand):
         return new_state
 
 
-# TODO wipe, stinger, DVE transition properties
+class TransitionWipeProperties(BaseCommand):
+    name = b'TWpB'
+    format = Struct(
+        'index' / Int8ub,
+        'rate' / Int8ub,
+        'pattern' / Int8ub,
+        Padding(1),
+        'width' / Int16ub,
+        'fill_source' / EnumAdapter(VideoSource)(Int16ub),
+        'symmetry' / Int16ub,
+        'softness' / Int16ub,
+        'position_x' / Int16ub,
+        'position_y' / Int16ub,
+        'reverse' / Flag,
+        'flip_flop' / Flag
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        me.setdefault('transition', {}).setdefault('properties', {})['wipe'] = {
+            'rate': self.rate,
+            'pattern': self.pattern,
+            'width': self.width,
+            'fill_source': self.fill_source,
+            'symmetry': self.symmetry,
+            'softness': self.softness,
+            'position': {
+                'x': self.position_x,
+                'y': self.position_y
+            },
+            'reverse': self.reverse,
+            'flip_flop': self.flip_flop
+        }
+        return new_state
+
+# TODO stinger, DVE transition properties
 
 
 class KeyerOnAir(BaseCommand):
@@ -350,3 +387,44 @@ class KeyChromaProperties(BaseCommand):
         return new_state
 
 # TODO: Pattern, DVE, fly, fly frame
+
+
+class FadeToBlackProperties(BaseCommand):
+    name = b'FtBP'
+    format = Struct(
+        'index' / Int8ub,
+        'rate' / Int8ub,
+        Padding(2)
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        ftb = me.setdefault('fade_to_black', {})
+        ftb['rate'] = self.rate
+
+        return new_state
+
+
+class FadeToBlackState(BaseCommand):
+    name = b'FtBS'
+    format = Struct(
+        'index' / Int8ub,
+        'fully_black' / Flag,
+        'in_transition' / Flag,
+        'frames_remaining' / Int8ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        ftb = me.setdefault('fade_to_black', {})
+        ftb['state'] = {
+            'fully_black': self.fully_black,
+            'in_transition': self.in_transition,
+            'frames_remaining': self.frames_remaining
+        }
+
+        return new_state

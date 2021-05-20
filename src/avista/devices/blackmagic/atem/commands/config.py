@@ -161,6 +161,16 @@ class MultiviewerConfigV7(BaseCommand):
         'can_toggle_safe_area' / Flag
     )
 
+    def apply_to_state(self, state):
+        new_state, config = clone_state_with_key(state, 'config')
+        mvc = config.setdefault('multiviewer', {})
+        mvc['count'] = self.count
+        mvc['window_count'] = self.window_count
+        mvc['can_route_inputs'] = self.can_route_inputs
+        mvc['can_swap_program_preview'] = self.can_swap_program_preview
+        mvc['can_toggle_safe_area'] = self.can_toggle_safe_area
+        return new_state
+
 
 class MultiviewerConfigV8(BaseCommand):
     name = b'_MvC'
@@ -177,6 +187,18 @@ class MultiviewerConfigV8(BaseCommand):
         'supports_quadrants' / Flag
     )
 
+    def apply_to_state(self, state):
+        new_state, config = clone_state_with_key(state, 'config')
+        mvc = config.setdefault('multiviewer', {})
+        mvc['count'] = self.count
+        mvc['window_count'] = self.window_count
+        mvc['can_route_inputs'] = self.can_route_inputs
+        mvc['supports_vu_meters'] = self.supports_vu_meters
+        mvc['can_swap_program_preview'] = self.can_swap_program_preview
+        mvc['can_toggle_safe_area'] = self.can_toggle_safe_area
+        mvc['supports_quadrants'] = self.supports_quadrants
+        return new_state
+
 
 class MultiviewerConfigV811(BaseCommand):
     name = b'_MvC'
@@ -191,6 +213,18 @@ class MultiviewerConfigV811(BaseCommand):
         'can_swap_program_preview' / Flag,
         'supports_quadrants' / Flag
     )
+
+    def apply_to_state(self, state):
+        new_state, config = clone_state_with_key(state, 'config')
+        mvc = config.setdefault('multiviewer', {})
+        mvc['window_count'] = self.window_count
+        mvc['can_change_layout'] = self.can_change_layout
+        mvc['can_route_inputs'] = self.can_route_inputs
+        mvc['supports_vu_meters'] = self.supports_vu_meters
+        mvc['can_swap_program_preview'] = self.can_swap_program_preview
+        mvc['can_toggle_safe_area'] = self.can_toggle_safe_area
+        mvc['supports_quadrants'] = self.supports_quadrants
+        return new_state
 
 
 class AudioMixerConfig(BaseCommand):
@@ -331,3 +365,18 @@ class InitComplete(BaseCommand):
         new_state, stateObj = clone_state_with_key(state, 'state')
         stateObj['initialized'] = self.complete
         return new_state
+
+
+class SuperSourceBoxCount(BaseCommand):
+    name = b'_SSC'
+    format = Struct(
+        'count' / Int8ub,
+        Padding(3)
+    )
+
+    def apply_to_state(self, state):
+        new_state, ssrc = clone_state_with_key(state, 'super_source')
+        for ss in ssrc.values():
+            boxes = ss.setdefault('boxes', {})
+            for i in range(self.count):
+                boxes[i] = {"enabled": False}
