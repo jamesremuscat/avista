@@ -80,20 +80,23 @@ class ATEMProtocol(DatagramProtocol):
                     for command in commands:
                         self.device.receive_command(command)
 
-            if packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK_REQUEST):
-                if not self._is_initialised:
-                    self._is_initialised = True
-                    self.log.info(
-                        'Connection to ATEM at {host}:{port} established',
-                        host=self.device.host,
-                        port=self.device.port
-                    )
-                    self._timeout_checker.start(self._timeout)
+            if packet.bitmask & PacketType.HELLO_PACKET:
+                self._is_initialised = False
 
                 ack = Packet.create(
                     PacketType.ACK,
                     self._current_uid,
                     0
+                )
+                self.send_packet(ack)
+            elif packet.bitmask & PacketType.ACK_REQUEST:
+                if not self._is_initialised:
+                    self._is_initialised = True
+
+                ack = Packet.create(
+                    PacketType.ACK,
+                    self._current_uid,
+                    packet.package_id
                 )
                 self.send_packet(ack)
 
@@ -103,7 +106,7 @@ class ATEMProtocol(DatagramProtocol):
             if self._packet_counter >= 32768:
                 self._packet_counter = 0
             packet.package_id = self._packet_counter
-        self.log.debug('Sending packet {packet}', packet=packet)
+        self.log.debug('Sending packet {packet} => {b}', packet=packet, b=packet.to_bytes())
         self.transport.write(packet.to_bytes())
 
     def send_command(self, command):

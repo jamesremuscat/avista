@@ -44,6 +44,9 @@ class Packet(recordclass('Packet', ['bitmask', 'size', 'uid', 'ack_id', 'package
         buffer = b''
         payload_size = len(self.payload)
 
+        if self.bitmask & PacketType.ACK_REQUEST:
+            payload_size += 4
+
         val = self.bitmask << 11
         val |= (payload_size + SIZE_OF_HEADER)
         buffer += struct.pack('!H', val)
@@ -53,7 +56,7 @@ class Packet(recordclass('Packet', ['bitmask', 'size', 'uid', 'ack_id', 'package
             buffer += struct.pack('!I', 0)
         buffer += struct.pack('!H', self.package_id)
         if self.payload:
-            buffer += struct.pack('!H', payload_size + 4)
+            buffer += struct.pack('!H', payload_size)
             buffer += b'\x00\x00'
             buffer += self.payload
         return buffer
