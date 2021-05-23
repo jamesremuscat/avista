@@ -31,9 +31,6 @@ class ATEMProtocol(DatagramProtocol):
                 port=self.device.port
             )
 
-            if self.transport and not self.transport._connectedAddr:
-                self.transport.connect(self.device.host, self.device.port)
-
             payload = struct.pack('!I', 0x01000000)
             payload += struct.pack('!I', 0x00)
 
@@ -92,6 +89,7 @@ class ATEMProtocol(DatagramProtocol):
             elif packet.bitmask & PacketType.ACK_REQUEST:
                 if not self._is_initialised:
                     self._is_initialised = True
+                    self._timeout_checker.start(10)
 
                 ack = Packet.create(
                     PacketType.ACK,
@@ -107,7 +105,7 @@ class ATEMProtocol(DatagramProtocol):
                 self._packet_counter = 0
             packet.package_id = self._packet_counter
         self.log.debug('Sending packet {packet} => {b}', packet=packet, b=packet.to_bytes())
-        self.transport.write(packet.to_bytes())
+        self.transport.write(packet.to_bytes(), (self.device.host, self.device.port))
 
     def send_command(self, command):
         packet = Packet.create(
