@@ -1,6 +1,6 @@
 from avista.devices.blackmagic.atem.constants import MediaPoolFileType
 from construct import Struct, Bytes, Const, Flag, Int8ub, Int16ub, CString, Padding, GreedyBytes
-from .base import BaseCommand, EnumAdapter, clone_state_with_key
+from .base import BaseCommand, EnumAdapter, PaddedCStringAdapter, clone_state_with_key
 
 
 class MediaPoolFrameDescription(BaseCommand):
@@ -57,3 +57,80 @@ class MediaPoolUnknownFM(BaseCommand):
 
     def apply_to_state(self, state):
         return state
+
+
+class MediaPoolLockState(BaseCommand):
+    name = b'LKST'
+    format = Struct(
+        'index' / Int16ub,
+        'lock' / Int16ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, media = clone_state_with_key(state, 'media_pool')
+        locks = media.setdefault('locks', {})
+
+        locks[self.index] = self.lock
+
+        return new_state
+
+
+class MediaPlayerSplit(BaseCommand):
+    name = b'MPSp'
+    format = Struct(
+        'clip_1' / Int16ub,
+        'clip_2' / Int16ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, media = clone_state_with_key(state, 'media_player')
+        storage = media.setdefault('storage', {})
+
+        storage['clip_1'] = self.clip_1
+        storage['clip_2'] = self.clip_2
+
+        return new_state
+
+
+class MediaPlayerSource(BaseCommand):
+    name = b'MPCE'
+    format = Struct(
+        'index' / Int8ub,
+        'type' / Int8ub,
+        'still_index' / Int8ub,
+        'clip_index' / Int8ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, media = clone_state_with_key(state, 'media_player')
+        source = media.setdefault('source', {})
+
+        source[self.index] = {
+            'type': self.type,
+            'still_index': self.still_index,
+            'clip_index': self.clip_index
+        }
+
+        return new_state
+
+
+class MediaPlayerAudioSource(BaseCommand):
+    name = b'MPAS'
+    format = Struct(
+        'index' / Int8ub,
+        'used' / Flag,
+        Padding(16),
+        'name' / PaddedCStringAdapter(Bytes(16)),
+        Padding(50)
+    )
+
+    def apply_to_state(self, state):
+        new_state, media = clone_state_with_key(state, 'media_player')
+        audio = media.setdefault('audio', {})
+
+        audio[self.index] = {
+            'used': self.used,
+            'name': self.name
+        }
+
+        return new_state

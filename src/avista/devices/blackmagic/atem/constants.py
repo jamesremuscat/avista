@@ -207,3 +207,24 @@ class BevelType(IntEnum):
     IN_OUT = 1
     IN = 2
     OUT = 3
+
+
+class PatternStyle(IntEnum):
+    LINEAR_X = 0
+    LINEAR_Y = 1
+    BILINEAR_X = 2
+    BILINEAR_Y = 3
+    CROSS = 4
+    SQUARE_CENTRE = 5
+    DIAMOND = 6
+    CIRCLE = 7
+    SQUARE_TOP_LEFT = 8
+    SQUARE_BOTTOM_LEFT = 9
+    SQUARE_BOTTOM_RIGHT = 10
+    SQUARE_TOP_RIGHT = 11
+    SQUARE_TOP = 12
+    SQUARE_BOTTOM = 13
+    SQUARE_LEFT = 14
+    SQUARE_RIGHT = 15
+    DIAGONAL_TOP_LEFT = 16
+    DIAGONAL_TOP_RIGHT = 17

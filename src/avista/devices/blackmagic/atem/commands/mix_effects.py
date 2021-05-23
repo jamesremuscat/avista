@@ -1,4 +1,4 @@
-from avista.devices.blackmagic.atem.constants import KeyType, TransitionStyle, VideoSource
+from avista.devices.blackmagic.atem.constants import KeyType, PatternStyle, TransitionStyle, VideoSource
 from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag, Rebuild, obj_, Default
 
 from .base import BaseCommand, BaseSetCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, recalculate_synthetic_tally
@@ -224,11 +224,11 @@ class TransitionDipProperties(BaseCommand):
 
 
 class TransitionWipeProperties(BaseCommand):
-    name = b'TWpB'
+    name = b'TWpP'
     format = Struct(
         'index' / Int8ub,
         'rate' / Int8ub,
-        'pattern' / Int8ub,
+        'pattern' / EnumAdapter(PatternStyle)(Int8ub),
         Padding(1),
         'width' / Int16ub,
         'fill_source' / EnumAdapter(VideoSource)(Int16ub),
@@ -260,7 +260,80 @@ class TransitionWipeProperties(BaseCommand):
         }
         return new_state
 
-# TODO stinger, DVE transition properties
+
+class TransitionDVEProperties(BaseCommand):
+    name = b'TDvP'
+    format = Struct(
+        'index' / Int8ub,
+        'rate' / Int8ub,
+        Padding(1),
+        'style' / Int8ub,
+        'fill_source' / EnumAdapter(VideoSource)(Int16ub),
+        'key_source' / EnumAdapter(VideoSource)(Int16ub),
+        'enable_key' / Flag,
+        'pre_multiplied' / Flag,
+        'clip' / Int16ub,
+        'gain' / Int16ub,
+        'invert' / Flag,
+        'reverse' / Flag,
+        'flip_flop' / Flag,
+        Padding(2)
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        me.setdefault('transition', {}).setdefault('properties', {})['dve'] = {
+            'rate': self.rate,
+            'style': self.style,
+            'fill_source': self.fill_source,
+            'key_source': self.key_source,
+            'enable_key': self.enable_key,
+            'pre_multiplied': self.pre_multiplied,
+            'clip': self.clip,
+            'gain': self.gain,
+            'invert': self.invert,
+            'reverse': self.reverse,
+            'flip_flop': self.flip_flop
+        }
+        return new_state
+
+
+class TransitionStingerProperties(BaseCommand):
+    name = b'TStP'
+    format = Struct(
+        'index' / Int8ub,
+        'source' / Int8ub,
+        'pre_multiplied' / Flag,
+        Padding(1),
+        'clip' / Int16ub,
+        'gain' / Int16ub,
+        'invert' / Flag,
+        Padding(1),
+        'pre_roll' / Int16ub,
+        'duration' / Int16ub,
+        'trigger_point' / Int16ub,
+        'mix_rate' / Int16ub,
+        Padding(1)
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        me.setdefault('transition', {}).setdefault('properties', {})['stinger'] = {
+            'source': self.source,
+            'pre_multiplied': self.pre_multiplied,
+            'clip': self.clip,
+            'gain': self.gain,
+            'invert': self.invert,
+            'pre_roll': self.pre_roll,
+            'duration': self.duration,
+            'trigger_point': self.trigger_point,
+            'mix_rate': self.mix_rate
+        }
+        return new_state
 
 
 class KeyerOnAir(BaseCommand):
@@ -386,11 +459,49 @@ class KeyChromaProperties(BaseCommand):
 
         return new_state
 
-# TODO: Pattern, DVE, fly, fly frame
+
+class KeyPatternProperties(BaseCommand):
+    name = b'KePt'
+    format = Struct(
+        'index' / Int8ub,
+        'key_index' / Int8ub,
+        'pattern' / EnumAdapter(PatternStyle)(Int8ub),
+        Padding(1),
+        'size' / Int16ub,
+        'symmetry' / Int16ub,
+        'softness' / Int16ub,
+        'position_x' / Int16ub,
+        'position_y' / Int16ub,
+        'invert' / Flag,
+        Padding(1)
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        keyer = me.setdefault('keyers', {}).get(self.key_index, {})
+
+        me['keyers'][self.key_index] = copy.copy(keyer)
+        me['keyers'][self.key_index]['pattern'] = {
+            'pattern': self.pattern,
+            'size': self.size,
+            'symmetry': self.symmetry,
+            'softness': self.softness,
+            'invert': self.invert,
+            'position': {
+                'x': self.position_x,
+                'y': self.position_y
+            }
+        }
+
+        return new_state
+
+# TODO: DVE, fly, fly frame
 
 
 class FadeToBlackProperties(BaseCommand):
-    name = b'FtBP'
+    name = b'FtbP'
     format = Struct(
         'index' / Int8ub,
         'rate' / Int8ub,
@@ -408,7 +519,7 @@ class FadeToBlackProperties(BaseCommand):
 
 
 class FadeToBlackState(BaseCommand):
-    name = b'FtBS'
+    name = b'FtbS'
     format = Struct(
         'index' / Int8ub,
         'fully_black' / Flag,
@@ -425,6 +536,30 @@ class FadeToBlackState(BaseCommand):
             'fully_black': self.fully_black,
             'in_transition': self.in_transition,
             'frames_remaining': self.frames_remaining
+        }
+
+        return new_state
+
+
+class ColorGeneratorState(BaseCommand):
+    name = b'ColV'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(1),
+        'hue' / Int16ub,
+        'saturation' / Int16ub,
+        'luma' / Int16ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, mes = clone_state_with_key(state, 'mes')
+
+        me = mes.setdefault(self.index, {})
+        cg = me.setdefault('color_generators', {}).setdefault(self.index, {})
+        cg['state'] = {
+            'hue': self.hue,
+            'saturation': self.saturation,
+            'luma': self.luma
         }
 
         return new_state
