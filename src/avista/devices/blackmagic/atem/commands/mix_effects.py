@@ -28,7 +28,7 @@ class SetPreviewInput(BaseCommand):
     format = Struct(
         'index' / Int8ub,
         Padding(1),
-        'source' / EnumAdapter(VideoSource)(Int16ub)
+        'source' / EnumAdapter(VideoSource)(Default(Int16ub, 0))
     )
 
 
@@ -37,7 +37,7 @@ class SetProgramInput(BaseCommand):
     format = Struct(
         'index' / Int8ub,
         Padding(1),
-        'source' / EnumAdapter(VideoSource)(Int16ub)
+        'source' / EnumAdapter(VideoSource)(Default(Int16ub, 0))
     )
 
 
@@ -186,6 +186,15 @@ class TransitionPosition(BaseCommand):
         return recalculate_synthetic_tally(new_state)
 
 
+class SetTransitionPosition(BaseSetCommand):
+    name = b'CTPs'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(1),
+        'position' / Int16ub
+    )
+
+
 class TransitionMixProperties(BaseCommand):
     name = b'TMxP'
     format = Struct(
@@ -202,6 +211,15 @@ class TransitionMixProperties(BaseCommand):
             'rate': self.rate
         }
         return new_state
+
+
+class SetTransitionMixProperties(BaseSetCommand):
+    name = b'CTMx'
+    format = Struct(
+        'index' / Int8ub,
+        'rate' / Int8ub,
+        Padding(2)  # This might need to be magic: 0x93, 0x07?
+    )
 
 
 class TransitionDipProperties(BaseCommand):
@@ -221,6 +239,36 @@ class TransitionDipProperties(BaseCommand):
             'source': self.source
         }
         return new_state
+
+
+class SetTransitionDipProperties(BaseSetCommand):
+    class Mask:
+        format = BitStruct(
+            'rate' / Flag,
+            'source' / Flag,
+            Padding(6)
+        )
+
+        @classmethod
+        def calculate(cls, obj):
+            return cls.format.parse(
+                cls.format.build(
+                    dict(
+                        rate=hasattr(obj, 'rate'),
+                        source=hasattr(obj, 'source')
+                    )
+                )
+            )
+
+    name = b'CTDp'
+    format = Struct(
+        'mask' / Rebuild(Mask.format, Mask.calculate),
+        'index' / Int8ub,
+        'rate' / Default(Int8ub, 0),
+        Padding(1),
+        'source' / EnumAdapter(VideoSource)(Default(Int16ub, 0)),
+        Padding(1)
+    )
 
 
 class TransitionWipeProperties(BaseCommand):
@@ -357,6 +405,16 @@ class KeyerOnAir(BaseCommand):
         return new_state
 
 
+class SetKeyerOnAir(BaseSetCommand):
+    name = b'CKOn'
+    format = Struct(
+        'index' / Int8ub,
+        'key_index' / Int8ub,
+        'enabled' / Flag,
+        Padding(1)
+    )
+
+
 class KeyerBaseProperties(BaseCommand):
     name = b'KeBP'
     format = Struct(
@@ -397,6 +455,37 @@ class KeyerBaseProperties(BaseCommand):
         }
 
         return new_state
+
+
+class SetKeyerType(BaseSetCommand):
+    class Mask:
+        format = BitStruct(
+            'type' / Flag,
+            'fly_enabled' / Flag,
+            Padding(6)
+
+        )
+
+        @classmethod
+        def calculate(cls, obj):
+            return cls.format.parse(
+                cls.format.build(
+                    dict(
+                        type=hasattr(obj, 'type'),
+                        fly_enabled=hasattr(obj, 'fly_enabled')
+                    )
+                )
+            )
+
+    name = b'CKTp'
+    format = Struct(
+        'mask' / Rebuild(Mask.format, Mask.calculate),
+        'index' / Int8ub,
+        'key_index' / Int8ub,
+        'type' / EnumAdapter(KeyType)(Default(Int8ub, 0)),
+        'fly_enabled' / Flag,
+        Padding(3)
+    )
 
 
 class KeyLumaProperties(BaseCommand):
