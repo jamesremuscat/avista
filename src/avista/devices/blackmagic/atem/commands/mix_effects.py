@@ -483,7 +483,7 @@ class SetKeyerType(BaseSetCommand):
         'index' / Int8ub,
         'key_index' / Int8ub,
         'type' / EnumAdapter(KeyType)(Default(Int8ub, 0)),
-        'fly_enabled' / Flag,
+        'fly_enabled' / Default(Flag, False),
         Padding(3)
     )
 
