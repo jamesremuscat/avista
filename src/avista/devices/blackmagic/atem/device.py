@@ -3,12 +3,14 @@ from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 
 from .commands.auxes import SetAuxSource
-from .commands.mix_effects import SetProgramInput, SetPreviewInput, PerformAuto, PerformCut, TransitionSelectionField, SetTransitionProperties
 from .constants import VideoSource, TransitionStyle
+
+from .methods import Auxes, MixEffects
+
 from .protocol import ATEMProtocol
 
 
-class ATEM(NetworkDevice):
+class ATEM(NetworkDevice, Auxes, MixEffects):
     default_port = 9910
 
     def __init__(self, *args, **kwargs):
@@ -57,54 +59,3 @@ class ATEM(NetworkDevice):
                 'Command {cmd} changed... nothing?',
                 cmd=command.__class__.__name__
             )
-
-    @expose
-    def set_preview_input(self, input, me=0):
-        cmd = SetPreviewInput(source=VideoSource(input), index=me)
-        self.get_protocol().send_command(cmd)
-
-    @expose
-    def set_program_input(self, input, me=0):
-        cmd = SetProgramInput(source=VideoSource(input), index=me)
-        self.get_protocol().send_command(cmd)
-
-    @expose
-    def perform_cut(self, me=0):
-        cmd = PerformCut(index=me)
-        self.get_protocol().send_command(cmd)
-
-    @expose
-    def perform_auto(self, me=0):
-        cmd = PerformAuto(index=me)
-        self.get_protocol().send_command(cmd)
-
-    @expose
-    def set_aux_source(self, aux, source):
-        self.get_protocol().send_command(
-            SetAuxSource(
-                index=aux,
-                source=VideoSource(source)
-            )
-        )
-
-    @expose
-    def set_transition_properties(self, style=None, background=None, key_1=None, key_2=None, key_3=None, key_4=None, me=0):
-        tie = TransitionSelectionField.parse(
-            TransitionSelectionField.build(
-                dict(
-                    background=background,
-                    key_1=key_1,
-                    key_2=key_2,
-                    key_3=key_3,
-                    key_4=key_4
-                )
-            )
-        )
-
-        self.get_protocol().send_command(
-            SetTransitionProperties(
-                style=TransitionStyle(style),
-                next=tie,
-                index=me
-            )
-        )
