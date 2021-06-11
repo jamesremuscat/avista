@@ -380,3 +380,5 @@ class SuperSourceBoxCount(BaseCommand):
             boxes = ss.setdefault('boxes', {})
             for i in range(self.count):
                 boxes[i] = {"enabled": False}
+
+        return new_state

@@ -36,6 +36,8 @@ class ATEM(NetworkDevice, Auxes, MixEffects):
 
     def receive_command(self, command):
         new_state = command.apply_to_state(self._state)
+        if new_state is None:
+            self.log.warn('apply_to_state returned None for {}'.format(command.name))
 
         self._prev_state = self._state
         self._state = new_state
