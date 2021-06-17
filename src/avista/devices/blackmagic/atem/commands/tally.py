@@ -5,9 +5,9 @@ from .base import BaseCommand, EnumAdapter, clone_state_with_key, recalculate_sy
 
 
 TallyFlags = BitStruct(
-    'program' / Flag,
+    Padding(6),
     'preview' / Flag,
-    Padding(6)
+    'program' / Flag,
 )
 
 
