@@ -33,6 +33,11 @@ def get_all_subclasses(cls):
 
 COMMAND_LIST = defaultdict(list)
 
+IGNORED_UNIMPLEMENTED_COMMANDS = [
+    b'CCdP',  # Camera control
+    b'CCdo',  # Camera control
+]
+
 for command_class in get_all_subclasses(BaseCommand):
     if hasattr(command_class, 'name'):
         log.debug(
@@ -97,7 +102,7 @@ class CommandParser(object):
                         val for val in version_options if val[0] <= self._version
                     )
                     return res[1].parse(payload)
-            else:
+            elif command_type not in IGNORED_UNIMPLEMENTED_COMMANDS:
                 log.warn(
                     'Command {cmd} not recognised for version {ver}: {full}',
                     cmd=command_type,
