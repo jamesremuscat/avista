@@ -78,8 +78,11 @@ class BaseCommand(object):
     def to_bytes(self):
         return self.__class__._full_struct().build(self.__dict__)
 
+    def to_object(self):
+        return self.__class__._full_struct().parse(self.to_bytes())
+
     def __repr__(self):
-        struct = self.__class__._full_struct().parse(self.to_bytes())
+        struct = self.to_object()
         return '<{} ({}): {}>'.format(
             self.__class__.__name__,
             self.name,
@@ -94,6 +97,18 @@ class BaseCommand(object):
 class BaseSetCommand(BaseCommand):
     def handle_missing_value(self, value_name):
         pass
+
+
+class AutoMask(object):
+    @classmethod
+    def calculate(cls, obj):
+        mask_dict = {
+            subcon.name: hasattr(obj, subcon.name) for subcon in cls.format.subcon.subcons[1:]
+        }
+
+        return cls.format.parse(
+            cls.format.build(mask_dict)
+        )
 
 
 def clone_state_with_key(state, key, default=None):

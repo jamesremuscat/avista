@@ -1,7 +1,7 @@
 from avista.devices.blackmagic.atem.constants import BevelType, VideoSource
-from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag
+from construct import BitStruct, Struct, Default, Int8ub, Int16ub, Int16sb, Padding, Flag, Rebuild
 
-from .base import BaseCommand, EnumAdapter, clone_state_with_key, recalculate_synthetic_tally
+from .base import BaseCommand, BaseSetCommand, EnumAdapter, clone_state_with_key, recalculate_synthetic_tally, AutoMask
 
 
 class SuperSourceProperties(BaseCommand):
@@ -63,6 +63,61 @@ class SuperSourceProperties(BaseCommand):
         }
 
         return recalculate_synthetic_tally(new_state)
+
+
+class SetSuperSourceProperties(BaseSetCommand):
+
+    class Mask(AutoMask):
+        format = BitStruct(
+            Padding(12),
+            'light_altitude' / Flag,
+            'light_direction' / Flag,
+            'border_luma' / Flag,
+            'border_saturation' / Flag,
+            'border_hue' / Flag,
+            'bevel_position' / Flag,
+            'bevel_softness' / Flag,
+            'inner_softness' / Flag,
+            'outer_softness' / Flag,
+            'inner_width' / Flag,
+            'outer_width' / Flag,
+            'bevel' / Flag,
+            'border_enabled' / Flag,
+            'invert' / Flag,
+            'gain' / Flag,
+            'clip' / Flag,
+            'pre_multiplied' / Flag,
+            'foreground' / Flag,
+            'key_source' / Flag,
+            'fill_source' / Flag,
+        )
+
+    name = b'CSSc'
+    format = Struct(
+        'mask' / Rebuild(Mask.format, Mask.calculate),
+        'fill_source' / EnumAdapter(VideoSource)(Default(Int16ub, 0)),
+        'key_source' / EnumAdapter(VideoSource)(Default(Int16ub, 0)),
+        'foreground' / Default(Flag, False),
+        'pre_multiplied' / Default(Flag, False),
+        'clip' / Default(Int16ub, 0),
+        'gain' / Default(Int16ub, 0),
+        'invert' / Default(Flag, False),
+        'border_enabled' / Default(Flag, False),
+        'bevel' / Default(Int8ub, 0),
+        Padding(1),
+        'outer_width' / Default(Int16ub, 0),
+        'inner_width' / Default(Int16ub, 0),
+        'outer_softness' / Default(Int8ub, 0),
+        'inner_softness' / Default(Int8ub, 0),
+        'bevel_softness' / Default(Int8ub, 0),
+        'bevel_position' / Default(Int8ub, 0),
+        'border_hue' / Default(Int16ub, 0),
+        'border_saturation' / Default(Int16ub, 0),
+        'border_luma' / Default(Int16ub, 0),
+        'light_direction' / Default(Int16ub, 0),
+        'light_altitude' / Default(Int8ub, 0),
+        Padding(1)
+    )
 
 
 class SuperSourceV8Properties(BaseCommand):
