@@ -118,6 +118,7 @@ class SetSuperSourceProperties(BaseSetCommand):
         'light_altitude' / Default(Int8ub, 0),
         Padding(1)
     )
+    maximum_version = 2.27
 
 
 class SuperSourceV8Properties(BaseCommand):

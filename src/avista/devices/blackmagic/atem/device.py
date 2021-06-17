@@ -34,6 +34,9 @@ class ATEM(NetworkDevice, Auxes, MixEffects):
                 self._connection.stopListening()
             self.protocol = None
 
+    def send_command(self, command):
+        return self.get_protocol().send_command(command)
+
     def receive_command(self, command):
         new_state = command.apply_to_state(self._state)
         if new_state is None:
