@@ -81,7 +81,7 @@ def _endpoint_and_type_from_url(url):
     else:
         raise RuntimeError('Unknown router URL protocol: {} (should be ws://, wss:// or rs://)'.format(url))
 
-    if endpoint['type'] == 'tcp' and os.name == 'nt':
+    if is_secure and endpoint['type'] == 'tcp' and os.name == 'nt':
         # Disable SSL verification on Windows because Windows
         endpoint['tls'] = CertificateOptions(verify=False)
 
