@@ -143,6 +143,13 @@ class Device(ApplicationSession):
     def after_power_off(self):
         pass
 
+    # Wraps `.call` in a try/except to neutralise and log Autobahn errors.
+    async def safe_call(self, method, *args, **kwargs):
+        try:
+            await self.call(method, *args, **kwargs)
+        except ApplicationError as e:
+            self.log.warn('Unable to call method {method}: {err}', method=method, err=e.error)
+
     @expose
     def _liveness_check(self):
         return True

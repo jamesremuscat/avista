@@ -1,5 +1,5 @@
 from avista.core import Device, expose
-from avista.constants import SystemPowerState, Messages, Topics
+from avista.constants import SystemPowerState, Messages
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 
@@ -27,7 +27,7 @@ class StaggeredSystemPower(Device):
         self.log.info('Turning system power on')
         self._set_state(SystemPowerState.POWERING_ON)
         for device, switch in self._switches:
-            await self.call('{}.turnOn'.format(device), switch)
+            await self.safe_call('{}.turnOn'.format(device), switch)
             await sleep(self._delay)
         self._set_state(SystemPowerState.POWERED_ON)
         self.log.info('System powered on')
@@ -37,7 +37,7 @@ class StaggeredSystemPower(Device):
         self.log.info('Turning system power off')
         self._set_state(SystemPowerState.POWERING_OFF)
         for device, switch in reversed(self._switches):
-            await self.call('{}.turnOff'.format(device), switch)
+            await self.safe_call('{}.turnOff'.format(device), switch)
             await sleep(self._delay)
         self._set_state(SystemPowerState.POWERED_OFF)
         self.log.info('System power turned off')
