@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from autobahn.rawsocket.util import parse_url as parse_rs_url
 from autobahn.twisted.component import Component, run as autobahn_run
 from autobahn.websocket.util import parse_url as parse_ws_url
+from twisted.internet.ssl import CertificateOptions
 
 import importlib
 import inspect
