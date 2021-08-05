@@ -1,7 +1,7 @@
 from avista.core import Device, expose
 from avista.constants import SystemPowerState, Messages
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, DeferredLock
 
 
 def sleep(secs):
@@ -18,12 +18,17 @@ class StaggeredSystemPower(Device):
         self._delay = config.extra.get('delay', 3)
         self._state = SystemPowerState.POWERED_OFF
 
+        # Use a lock to prevent trying to power off while we're in the
+        # middle of a power-on sequence.
+        self._lock = DeferredLock()
+
     async def onJoin(self, details):
         await super().onJoin(details)
         self._set_state(self._state)
 
     @expose
     async def power_on(self):
+        await self._lock.acquire()
         self.log.info('Turning system power on')
         self._set_state(SystemPowerState.POWERING_ON)
         for device, switch in self._switches:
@@ -31,9 +36,11 @@ class StaggeredSystemPower(Device):
             await sleep(self._delay)
         self._set_state(SystemPowerState.POWERED_ON)
         self.log.info('System powered on')
+        self._lock.release()
 
     @expose
     async def power_off(self):
+        await self._lock.acquire()
         self.log.info('Turning system power off')
         self._set_state(SystemPowerState.POWERING_OFF)
         for device, switch in reversed(self._switches):
@@ -41,6 +48,7 @@ class StaggeredSystemPower(Device):
             await sleep(self._delay)
         self._set_state(SystemPowerState.POWERED_OFF)
         self.log.info('System power turned off')
+        self._lock.release()
 
     def _set_state(self, state):
         self._state = state
