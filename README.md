@@ -1,5 +1,7 @@
 # avista: Networked audio-visual control
 
+![License: AGPL-v3.0](https://img.shields.io/github/license/jamesremuscat/avista) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jamesremuscat/avista/Test%20avista)
+
 ## Introduction
 
 `avista` is a system for controlling audio-visual devices over a network. A
