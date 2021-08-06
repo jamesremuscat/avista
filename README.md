@@ -1,6 +1,6 @@
 # avista: Networked audio-visual control
 
-![License: AGPL-v3.0](https://img.shields.io/github/license/jamesremuscat/avista) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jamesremuscat/avista/Test%20avista)
+![License: AGPL-v3.0](https://img.shields.io/github/license/jamesremuscat/avista) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jamesremuscat/avista/Build%20and%20test)
 
 ## Introduction
 
