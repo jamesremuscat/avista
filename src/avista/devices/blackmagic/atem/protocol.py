@@ -112,11 +112,11 @@ class ATEMProtocol(DatagramProtocol):
         self.transport.write(packet.to_bytes(), (self.device.host, self.device.port))
 
     def send_command(self, command):
-        if hasattr(command.maximum_version):
+        if hasattr(command, 'maximum_version'):
             if command.maximum_version < self._command_parser._version:
                 raise CommandVersionMismatchError()
 
-        if hasattr(command.minimum_version):
+        if hasattr(command, 'minimum_version'):
             if command.minimum_version > self._command_parser._version:
                 raise CommandVersionMismatchError()
 
