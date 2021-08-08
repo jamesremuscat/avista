@@ -110,11 +110,12 @@ def run():
         'name': args.name
     }
 
-    for optval in args.option:
-        if '=' not in optval:
-            raise RuntimeError('Incorrectly specified option: {}'.format(optval))
-        option, value = optval.split('=')
-        extra[option] = value
+    if args.option:
+        for optval in args.option:
+            if '=' not in optval:
+                raise RuntimeError('Incorrectly specified option: {}'.format(optval))
+            option, value = optval.split('=')
+            extra[option] = value
 
     component = Component(
         extra=extra,
