@@ -102,6 +102,12 @@ class Device(ApplicationSession):
         )
         super().publish(topic, payload, **kwargs)
 
+    @expose
+    def _get_state(self):
+        if hasattr(self, '_state'):
+            return self._state
+        return None
+
     @property
     def broadcast_topic(self):
         return 'avista.devices.{}'.format(self.name)
