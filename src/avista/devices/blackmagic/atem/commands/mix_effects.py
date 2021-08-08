@@ -142,7 +142,7 @@ class SetTransitionProperties(BaseSetCommand):
     format = Struct(
         'mask' / Rebuild(CTTp_mask, lambda obj: _calculate_CTTp_mask(obj)),
         'index' / Int8ub,
-        'style' / Default(EnumAdapter(TransitionStyle)(Int8ub), 0),
+        'style' / EnumAdapter(TransitionStyle)(Default(Int8ub, 0)),
         'next' / TransitionSelectionField
     )
 

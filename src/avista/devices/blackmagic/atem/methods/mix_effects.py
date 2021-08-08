@@ -53,11 +53,16 @@ class MixEffects(object):
             )
         )
 
+        args = {
+            'next': tie,
+            'index': me
+        }
+        if style is not None:
+            args['style'] = TransitionStyle(style)
+
         self.get_protocol().send_command(
             SetTransitionProperties(
-                style=TransitionStyle(style),
-                next=tie,
-                index=me
+                **args
             )
         )
 
@@ -85,7 +90,7 @@ class MixEffects(object):
         self.get_protocol().send_command(
             SetKeyerOnAir(
                 key_index=keyer,
-                on_air=on_air,
+                enabled=on_air,
                 index=me
             )
         )
