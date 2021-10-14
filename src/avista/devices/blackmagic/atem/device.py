@@ -38,6 +38,9 @@ class ATEM(NetworkDevice, Auxes, MixEffects):
         return self.get_protocol().send_command(command)
 
     def receive_command(self, command):
+        reactor.callInThread(self._receive_command, command)
+
+    def _receive_command(self, command):
         new_state = command.apply_to_state(self._state)
         if new_state is None:
             self.log.warn('apply_to_state returned None for {}'.format(command.name))
