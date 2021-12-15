@@ -74,12 +74,12 @@ class PerformAuto(BaseCommand):
 
 
 TransitionSelectionField = BitStruct(
-    'background' / Default(Flag, False),
-    'key_1' / Default(Flag, False),
-    'key_2' / Default(Flag, False),
-    'key_3' / Default(Flag, False),
+    Padding(3),
     'key_4' / Default(Flag, False),
-    Padding(3)
+    'key_3' / Default(Flag, False),
+    'key_2' / Default(Flag, False),
+    'key_1' / Default(Flag, False),
+    'background' / Default(Flag, False),
 )
 
 
@@ -120,9 +120,9 @@ class TransitionProperties(BaseCommand):
 
 
 CTTp_mask = BitStruct(
-    'style' / Flag,
+    Padding(6),
     'next' / Flag,
-    Padding(6)
+    'style' / Flag,
 )
 
 
