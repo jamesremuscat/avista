@@ -1,6 +1,7 @@
 from avista.core import expose
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
+from twisted.internet.defer import DeferredLock
 
 from .commands.auxes import SetAuxSource
 from .constants import VideoSource, TransitionStyle
@@ -17,6 +18,7 @@ class ATEM(NetworkDevice, Auxes, MixEffects):
         self._state = {}
         self._prev_state = {}
         super(ATEM, self).__init__(*args, **kwargs)
+        self._lock = DeferredLock()
 
     def create_protocol(self):
         return ATEMProtocol(self)
@@ -38,7 +40,7 @@ class ATEM(NetworkDevice, Auxes, MixEffects):
         return self.get_protocol().send_command(command)
 
     def receive_command(self, command):
-        reactor.callInThread(self._receive_command, command)
+        self._lock.run(self._receive_command, command)
 
     def _receive_command(self, command):
         new_state = command.apply_to_state(self._state)
