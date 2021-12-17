@@ -99,3 +99,20 @@ class SetDownstreamKeyerOnAir(BaseSetCommand):
         'on_air' / Flag,
         Padding(2)
     )
+
+
+class SetDownstreamKeyerTie(BaseSetCommand):
+    name = b'CDsT'
+    format = Struct(
+        'index' / Int8ub,
+        'tie' / Flag,
+        Padding(2)
+    )
+
+
+class DownstreamKeyerPerformAuto(BaseSetCommand):
+    name = b'DDsA'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(3)
+    )
