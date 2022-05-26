@@ -311,16 +311,34 @@ class VISCACommandsMixin(object):
         return raw[0]
 
 
-class VISCACamera(SerialDevice, VISCACommandsMixin):
+class VISCACameraBase(VISCACommandsMixin):
     def __init__(self, config):
-        self.camera_id = config.extra.get('cameraID', 1)
-        super().__init__(config)
+        super().__init__()
         self._wait_for_ack = config.extra.get('waitForAck', True)
         self._command_lock = DeferredLock()
         self._response_handler = None
 
-    def get_protocol(self):
-        return VISCAProtocol(self.camera_id, self)
+    async def _sendVISCARaw(self, visca, with_lock=None):
+        if with_lock is None:
+            with_lock = self._wait_for_ack
+        if with_lock:
+            await self._command_lock.acquire()
+
+        if isinstance(visca, list):
+            visca = bytes(visca)
+
+        return self._port.writeSomeData(visca)
+
+    async def getVISCA(self, visca):
+        if self._wait_for_ack:
+            await self._command_lock.acquire()
+
+        response_handler = Deferred()
+        self._response_handler = response_handler
+        await self.sendVISCA(visca, with_lock=False)
+
+        response = await response_handler
+        return response
 
     def on_ack(self):
         self.log.debug('Ack')
@@ -344,31 +362,18 @@ class VISCACamera(SerialDevice, VISCACommandsMixin):
         if self._command_lock.locked:
             self._command_lock.release()
 
+
+class SerialVISCACamera(SerialDevice, VISCACameraBase):
+    def __init__(self, config):
+        self.camera_id = config.extra.get('cameraID', 1)
+        super().__init__(config)
+
+    def get_protocol(self):
+        return VISCAProtocol(self.camera_id, self)
+
     async def sendVISCA(self, visca, with_lock=None):
-        if with_lock is None:
-            with_lock = self._wait_for_ack
-        if with_lock:
-            await self._command_lock.acquire()
-
-        if isinstance(visca, list):
-            visca = bytes(visca)
-
         data = bytes([0x80 + self.camera_id]) + visca + b'\xFF'
-        return self._port.writeSomeData(
-            data
-        )
-        self.log.debug('Wrote data {}'.format(data))
-
-    async def getVISCA(self, visca):
-        if self._wait_for_ack:
-            await self._command_lock.acquire()
-
-        response_handler = Deferred()
-        self._response_handler = response_handler
-        await self.sendVISCA(visca, with_lock=False)
-
-        response = await response_handler
-        return response
+        return await self._sendVISCARaw(data, with_lock)
 
 
 class CameraSettingEnum(Enum):
