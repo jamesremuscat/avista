@@ -126,14 +126,14 @@ def recalculate_synthetic_tally(state):
     for idx, me in new_state.get('mes', {}).items():
         this_me = {}
 
-        if me.get('preview'):
+        if me.get('preview') is not None:
             this_me.setdefault(me['preview'], {})['preview'] = True
 
             if me['preview'] == VideoSource.SUPER_SOURCE:
                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                     this_me.setdefault(sssrc, {})['preview'] = True
 
-        if me.get('program'):
+        if me.get('program') is not None:
             this_me.setdefault(me['program'], {})['program'] = True
 
             if me['program'] == VideoSource.SUPER_SOURCE:
@@ -160,15 +160,15 @@ def recalculate_synthetic_tally(state):
                 if transition.get('position', {}).get('in_transition'):
                     tie = transition.get('next', {})
 
-                    if tie.get('background') and me.get('preview'):
+                    if tie.get('background') and me.get('preview') is not None:
                         this_me.setdefault(me['preview'], {})['program'] = True
 
                     for index, keyer in enumerate(me.get('keyers', {}).values()):
                         key_tie = "key_{}".format(index + 1)
                         if tie.get(key_tie):
-                            if keyer.get('fill_source'):
+                            if keyer.get('fill_source') is not None:
                                 this_me.setdefault(keyer['fill_source'], {})['program'] = True
-                            if keyer.get('key_source'):
+                            if keyer.get('key_source') is not None:
                                 this_me.setdefault(keyer['key_source'], {})['program'] = True
 
                             if VideoSource.SUPER_SOURCE in [keyer.get('fill_source'), keyer.get('key_source')]:
