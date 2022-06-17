@@ -313,7 +313,7 @@ class VISCACommandsMixin(object):
 
 class VISCACameraBase(VISCACommandsMixin):
     def __init__(self, config):
-        super().__init__()
+        super().__init__(config)
         self._wait_for_ack = config.extra.get('waitForAck', True)
         self._command_lock = DeferredLock()
         self._response_handler = None
@@ -327,7 +327,7 @@ class VISCACameraBase(VISCACommandsMixin):
         if isinstance(visca, list):
             visca = bytes(visca)
 
-        return self._port.writeSomeData(visca)
+        return self.send(visca)
 
     async def getVISCA(self, visca):
         if self._wait_for_ack:
@@ -374,6 +374,9 @@ class SerialVISCACamera(SerialDevice, VISCACameraBase):
     async def sendVISCA(self, visca, with_lock=None):
         data = bytes([0x80 + self.camera_id]) + visca + b'\xFF'
         return await self._sendVISCARaw(data, with_lock)
+
+    def send(self, data):
+        return self._port.writeSomeData(data)
 
 
 class CameraSettingEnum(Enum):

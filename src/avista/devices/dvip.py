@@ -1,13 +1,12 @@
-from avista.devices.net import NetworkDevice
+from avista.devices.net import NetworkDevice, NotConnectedException
 from avista.devices.visca import VISCACameraBase
-from twisted.internet.defer import Deferred
-from twisted.protocols.basic import LineReceiver
+from twisted.internet.protocol import Protocol
 
 
 def _split_response(response_bytes):
     packets = []
 
-    remaining = map(ord, response_bytes[2:])
+    remaining = response_bytes[2:]
     while True:
         try:
             idx = remaining.index(0xFF)
@@ -17,22 +16,21 @@ def _split_response(response_bytes):
             return packets
 
 
-class DVIPProtocol(LineReceiver):
+class DVIPProtocol(Protocol):
     def __init__(self, handler):
         super().__init__()
-        self.setRawMode()
         self.handler = handler
 
     def connectionMade(self):
-        self.device.log.info('Connected to DVIP device')
+        self.handler.log.info('Connected to DVIP device')
 
-    def rawDataReceived(self, data):
+    def dataReceived(self, data):
         packets = _split_response(data)
         for packet in packets:
             responseType = (packet[1] & 0x70) >> 4
             source = (packet[0] >> 4) - 8
 
-            if source == self.camera_id:
+            if source == 1:  # DVIP cameras should always be using VISCA ID 1
                 if responseType == 4:
                     self.handler.on_ack()
                 elif responseType == 5:
@@ -44,15 +42,29 @@ class DVIPProtocol(LineReceiver):
                     self.handler.on_error(packet[2])
 
 
-class DVIPCamera(NetworkDevice, VISCACameraBase):
-    def get_protocol(self):
+class DVIPCamera(VISCACameraBase, NetworkDevice):
+
+    default_port = 5002
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def create_protocol(self):
         return DVIPProtocol(self)
 
     async def sendVISCA(self, visca, with_lock=None):
-        data = b'\x81' + visca + b'\xFF'
+        data = [0x81] + visca + [0xFF]
         length = len(data) + 2
 
+        message = [(length >> 8), (length & 0xFF)] + data
+
         return await self._sendVISCARaw(
-            bytes([(length >> 8), (length & 0xFF)] + data),
+            message,
             with_lock
         )
+
+    def send(self, data):
+        if self.get_protocol():
+            self.get_protocol().transport.write(data)
+        else:
+            raise NotConnectedException()

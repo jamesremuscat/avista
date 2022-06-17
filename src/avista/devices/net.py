@@ -54,6 +54,7 @@ class NetworkDevice(Device):
             raise NotConnectedException()
 
     def _connect(self):
+        self.log.info(f'Attempting to connect to {self.host}:{self.port}')
         factory = NetworkProtocolFactory(self)
 
         self._connection = reactor.connectTCP(
