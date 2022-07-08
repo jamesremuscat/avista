@@ -266,3 +266,7 @@ timeline (or clip), else it will stop.
     @expose
     def prev_clip(self):
         self.goto_clip('-1')
+
+    @expose
+    def set_record_preview(self, enabled=True):
+        self.send(f'preview: enable: {enabled}')
