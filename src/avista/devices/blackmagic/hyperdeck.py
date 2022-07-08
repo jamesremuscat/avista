@@ -115,7 +115,8 @@ class HyperDeck(NetworkDevice):
         self.broadcast_device_message(
             Messages.CONNECTION_STATE,
             self._state['connection'],
-            retain=True
+            retain=True,
+            subtopic='connection'
         )
 
     def _recv_208(self, payload, raw):
@@ -135,7 +136,8 @@ class HyperDeck(NetworkDevice):
         self.broadcast_device_message(
             Messages.TRANSPORT_STATE,
             self._state['transport'],
-            retain=True
+            retain=True,
+            subtopic='transport'
         )
 
     def _recv_508(self, payload, raw):
@@ -157,7 +159,8 @@ class HyperDeck(NetworkDevice):
             self.broadcast_device_message(
                 Messages.SLOT_STATE,
                 self._state['slots'],
-                retain=True
+                retain=True,
+                subtopic='slots'
             )
 
     def _recv_502(self, payload, raw):
@@ -185,10 +188,13 @@ class HyperDeck(NetworkDevice):
                     'duration': duration
                 })
 
+            self._state['clips'][slot] = listing
+
             self.broadcast_device_message(
                 Messages.CLIPS_STATE,
                 self._state['clips'],
-                retain=True
+                retain=True,
+                subtopic='clips'
             )
 
     @expose
@@ -257,5 +263,6 @@ timeline (or clip), else it will stop.
     def next_clip(self):
         self.goto_clip('+1')
 
+    @expose
     def prev_clip(self):
         self.goto_clip('-1')
