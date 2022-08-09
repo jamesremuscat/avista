@@ -319,9 +319,10 @@ class VISCACameraBase(VISCACommandsMixin):
         self._response_handler = None
 
     async def _sendVISCARaw(self, visca, with_lock=None):
-        if with_lock is None:
+        if with_lock is None and hasattr(self, '_wait_for_ack'):
             with_lock = self._wait_for_ack
         if with_lock:
+            self.log.debug('Waiting to acquire command lock')
             await self._command_lock.acquire()
 
         if isinstance(visca, list):
@@ -363,7 +364,7 @@ class VISCACameraBase(VISCACommandsMixin):
             self._command_lock.release()
 
 
-class SerialVISCACamera(SerialDevice, VISCACameraBase):
+class SerialVISCACamera(VISCACameraBase, SerialDevice):
     def __init__(self, config):
         self.camera_id = config.extra.get('cameraID', 1)
         super().__init__(config)
@@ -372,7 +373,7 @@ class SerialVISCACamera(SerialDevice, VISCACameraBase):
         return VISCAProtocol(self.camera_id, self)
 
     async def sendVISCA(self, visca, with_lock=None):
-        data = bytes([0x80 + self.camera_id]) + visca + b'\xFF'
+        data = bytes([0x80 + self.camera_id] + visca + [0xFF])
         return await self._sendVISCARaw(data, with_lock)
 
     def send(self, data):

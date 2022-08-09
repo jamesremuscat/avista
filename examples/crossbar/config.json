@@ -89,7 +89,7 @@
                {
                   "type": "class",
                   "realm": "realm1",
-                  "classname": "avista.devices.visca.VISCACamera",
+                  "classname": "avista.devices.visca.SerialVISCACamera",
                   "extra": {
                      "name": "Camera1",
                      "port": "/dev/ttyUSB0",
