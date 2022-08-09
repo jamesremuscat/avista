@@ -62,3 +62,8 @@ class StaggeredSystemPower(Device):
             self._state,
             retain=True
         )
+
+    def on_infrastructure_message(self, message):
+        if message['type'] == Messages.REGISTER_DEVICE:
+            # Rebroadcast our new state so the new device picks up on it
+            self._set_state(self._state)
