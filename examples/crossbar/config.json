@@ -1,4 +1,5 @@
 {
+    "$schema": "https://raw.githubusercontent.com/crossbario/crossbar/master/crossbar.json",
     "version": 2,
     "workers": [
         {
