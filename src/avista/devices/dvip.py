@@ -64,7 +64,8 @@ class DVIPCamera(VISCACameraBase, NetworkDevice):
         )
 
     def send(self, data):
-        if self.get_protocol():
+        my_protocol = self.get_protocol()
+        if my_protocol and hasattr(my_protocol, 'transport'):
             self.get_protocol().transport.write(data)
         else:
             raise NotConnectedException()
