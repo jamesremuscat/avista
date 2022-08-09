@@ -1,19 +1,33 @@
 from avista.core import Device, expose
+from twisted.internet.defer import Deferred
 from twisted.internet import reactor
+
+
+def pause(secs):
+    d = Deferred()
+    reactor.callLater(secs, d.callback, None)
+    return d
 
 
 class BlindsArray(Device):
     def __init__(self, config):
         super().__init__(config)
-        self.blinds = config.extra['blinds']
+        self.blinds = config.extra['blinds']  # Should be an array of blind definitions
+        # A blind definition is an object of the form:
+        # {
+        #   "up": ["device_name", channelNumber],
+        #   "down": ["device_name", channelNumber],
+        #   "stop": ["device_name", channelNumber],
+        # }
 
     async def blindAction(self, action, index):
-        if index in self.blinds:
+        if index < len(self.blinds):
             blind = self.blinds[index]
             if action in blind:
                 relays = blind[action]
-                self.safe_call(f'{relays[0]}.turnOn', relays[1])
-                reactor.callLater(0.5, self.safe_call, f'{relays[0]}.turnOff', relays[1])
+                await self.safe_call(f'{relays[0]}.turnOn', relays[1])
+                await pause(0.5)
+                await self.safe_call(f'{relays[0]}.turnOff', relays[1])
 
     @expose
     async def raiseUp(self, index):
@@ -21,8 +35,8 @@ class BlindsArray(Device):
 
     @expose
     async def raiseAll(self):
-        for blind in self.blinds.keys():
-            self.raiseUp(blind)
+        for blind in range(len(self.blinds)):
+            await self.raiseUp(blind)
 
     @expose
     async def lower(self, index):
@@ -30,8 +44,8 @@ class BlindsArray(Device):
 
     @expose
     async def lowerAll(self):
-        for blind in self.blinds.keys():
-            self.lower(blind)
+        for blind in range(len(self.blinds)):
+            await self.lower(blind)
 
     @expose
     async def stop(self, index):
@@ -39,5 +53,5 @@ class BlindsArray(Device):
 
     @expose
     async def stopAll(self):
-        for blind in self.blinds.keys():
-            self.stop(blind)
+        for blind in range(len(self.blinds)):
+            await self.stop(blind)
