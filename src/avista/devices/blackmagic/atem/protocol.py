@@ -27,6 +27,8 @@ class ATEMProtocol(DatagramProtocol):
         self._timeout = device.config.extra.get('timeout', 10)
         self._timeout_checker = LoopingCall(self._check_timeout)
 
+        self._is_terminating = False
+
     def startProtocol(self):
         if self.transport and not self._is_initialised:
             self.log.info(
@@ -47,11 +49,17 @@ class ATEMProtocol(DatagramProtocol):
             )
             self.send_packet(p)
 
-            # Send another hello in 10s if we haven't connected by then
-            reactor.callLater(
-                10.0,
-                self.startProtocol
-            )
+            if not self._is_terminating:
+                # Send another hello in 10s if we haven't connected by then
+                reactor.callLater(
+                    10.0,
+                    self.startProtocol
+                )
+
+    def terminateProtocol(self):
+        self._is_terminating = True
+        if self.transport:
+            self.transport.stopListening()
 
     def _check_timeout(self):
         now = time.time()
