@@ -125,7 +125,8 @@ def run():
             {
                 'url': router_url,
                 'type': type,
-                'endpoint': endpoint
+                'endpoint': endpoint,
+                'max_retry_delay': 30
             }
         ]
     )
