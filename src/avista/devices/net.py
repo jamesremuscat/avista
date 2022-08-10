@@ -64,7 +64,7 @@ class NetworkDevice(Device):
         )
 
     def after_power_on(self):
-        if not self.always_powered:
+        if not self.always_powered and not self._connection:
             self._connect()
 
     def before_power_off(self):
