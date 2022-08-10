@@ -149,7 +149,7 @@ class VISCACommandsMixin(object):
         return await self.sendVISCA([0x01, 0x04, 0x07, 0x30 + speed])
 
     @expose
-    async def zoomStop(self):
+    async def zoomStop(self, speed=DEFAULT_ZOOM_SPEED):
         return await self.sendVISCA([0x01, 0x04, 0x07, 0x00])
 
     @expose
