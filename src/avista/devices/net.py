@@ -35,6 +35,7 @@ class NetworkDevice(Device):
         self.always_powered = config.extra.get('alwaysPowered')
 
         self._connection = None
+        self._factory = None
 
         if self.always_powered:
             self._connect()
@@ -55,12 +56,12 @@ class NetworkDevice(Device):
 
     def _connect(self):
         self.log.info(f'Attempting to connect to {self.host}:{self.port}')
-        factory = NetworkProtocolFactory(self)
+        self._factory = NetworkProtocolFactory(self)
 
         self._connection = reactor.connectTCP(
             self.host,
             self.port,
-            factory
+            self._factory
         )
 
     def after_power_on(self):
@@ -69,6 +70,9 @@ class NetworkDevice(Device):
 
     def before_power_off(self):
         if not self.always_powered:
+            if self._factory:
+                self._factory.stopTrying()
+                self._factory = None
             if self._connection:
                 self._connection.disconnect()
             self.protocol = None
