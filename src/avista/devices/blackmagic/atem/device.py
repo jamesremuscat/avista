@@ -21,7 +21,7 @@ class ATEM(NetworkDevice, Auxes, DSK, MixEffects):
         return ATEMProtocol(self)
 
     def _connect(self):
-        protocol = self.get_protocol()
+        protocol = self.create_protocol()
         self._connection = reactor.listenUDP(
             self.port,
             protocol

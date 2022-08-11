@@ -75,4 +75,5 @@ class NetworkDevice(Device):
                 self._factory = None
             if self._connection:
                 self._connection.disconnect()
+                self._connection = None
             self.protocol = None
