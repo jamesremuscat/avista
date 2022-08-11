@@ -8,6 +8,8 @@ class NotConnectedException(Exception):
 
 
 class NetworkProtocolFactory(ReconnectingClientFactory):
+    maxDelay = 30
+
     def __init__(self, device):
         self.device = device
 
