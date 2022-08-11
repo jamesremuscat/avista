@@ -88,6 +88,9 @@ class HyperDeck(NetworkDevice):
 
     def __init__(self, config):
         super().__init__(config)
+        self._init_state()
+
+    def _init_state(self):
         self._state = {
             'connection': {},
             'slots': {},
@@ -97,6 +100,16 @@ class HyperDeck(NetworkDevice):
 
     def create_protocol(self):
         return HyperDeckProtocol(self)
+
+    def before_power_off(self):
+        super().before_power_off()
+        self._init_state()
+        self.broadcast_device_message(
+            Messages.CONNECTION_STATE,
+            self._state['connection'],
+            retain=True,
+            subtopic='connection'
+        )
 
     def send(self, line):
         if self.get_protocol():
