@@ -60,22 +60,25 @@ class ATEMProtocol(DatagramProtocol):
         self._is_terminating = True
         if self.transport:
             self.transport.stopListening()
+        if self._timeout_checker:
+            self._timeout_checker.stop()
 
     def _check_timeout(self):
-        now = time.time()
-        if self._is_initialised and self._last_received and self._last_received + self._timeout < now:
-            self.log.warn(
-                'Connection to ATEM at {host}:{port} timed out (waited {delta:.1f} secs)',
-                host=self.device.host,
-                port=self.device.port,
-                delta=now - self._last_received
-            )
-            self._timeout_checker.stop()
-            self._packet_counter = 0
-            self._current_uuid = 0x1337
-            self._is_initialised = False
-            self._last_received = None
-            self.startProtocol()
+        if not self._is_terminating:
+            now = time.time()
+            if self._is_initialised and self._last_received and self._last_received + self._timeout < now:
+                self.log.warn(
+                    'Connection to ATEM at {host}:{port} timed out (waited {delta:.1f} secs)',
+                    host=self.device.host,
+                    port=self.device.port,
+                    delta=now - self._last_received
+                )
+                self._timeout_checker.stop()
+                self._packet_counter = 0
+                self._current_uuid = 0x1337
+                self._is_initialised = False
+                self._last_received = None
+                self.startProtocol()
 
     def datagramReceived(self, datagram, _):
         packet = Packet.parse(datagram)
