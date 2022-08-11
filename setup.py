@@ -1,5 +1,4 @@
 from setuptools import setup, find_namespace_packages
-import re
 
 setup(
     name='avista',
