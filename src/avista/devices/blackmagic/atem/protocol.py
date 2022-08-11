@@ -15,6 +15,8 @@ class CommandVersionMismatchError(Exception):
 
 class ATEMProtocol(DatagramProtocol):
     def __init__(self, device):
+        super().__init__()
+
         self.device = device
         self.log = device.log
         self._command_parser = CommandParser()
@@ -56,10 +58,8 @@ class ATEMProtocol(DatagramProtocol):
                     self.startProtocol
                 )
 
-    def terminateProtocol(self):
+    def stopProtocol(self):
         self._is_terminating = True
-        if self.transport:
-            self.transport.stopListening()
         if self._timeout_checker:
             self._timeout_checker.stop()
 

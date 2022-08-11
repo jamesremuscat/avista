@@ -27,13 +27,6 @@ class ATEM(NetworkDevice, Auxes, DSK, MixEffects):
             protocol
         )
 
-    def before_power_off(self):
-        if not self.always_powered:
-            protocol = self.get_protocol()
-            if protocol:
-                protocol.terminateProtocol()
-            self.protocol = None
-
     def send_command(self, command):
         return self.get_protocol().send_command(command)
 

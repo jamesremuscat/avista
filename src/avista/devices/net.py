@@ -74,6 +74,9 @@ class NetworkDevice(Device):
                 self._factory.stopTrying()
                 self._factory = None
             if self._connection:
-                self._connection.disconnect()
+                if hasattr(self._connection, 'disconnect'):  # TCP
+                    self._connection.disconnect()
+                elif hasattr(self._connection, 'stopListening'):  # UDP
+                    self._connection.stopListening()
                 self._connection = None
             self.protocol = None
