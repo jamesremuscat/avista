@@ -32,7 +32,7 @@ class NetworkDevice(Device):
     def __init__(self, config):
         self.protocol = None
         super().__init__(config)
-        self.host = config.extra['host']
+        self.host = config.extra.get('host')
         self.port = config.extra.get('port', self.default_port)
         self.always_powered = config.extra.get('alwaysPowered')
 
