@@ -8,6 +8,7 @@ import importlib
 import inspect
 import os
 import sys
+import txaio
 
 from .core import Device
 
@@ -37,6 +38,12 @@ def _parse_args(args):
         '--realm',
         default='avista',
         help='WAMP realm to join'
+    )
+
+    parser.add_argument(
+        '--debug',
+        default=False,
+        action='store_true'
     )
 
     parser.add_argument('device_class')
@@ -109,6 +116,9 @@ def run():
     extra = {
         'name': args.name
     }
+
+    if args.debug:
+        txaio.start_logging(level='debug')
 
     if args.option:
         for optval in args.option:
