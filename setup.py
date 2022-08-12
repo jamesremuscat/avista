@@ -19,7 +19,8 @@ setup(
         'autobahn[twisted]',
         'construct',
         'pyserial',
-        'recordclass'
+        'ratelimiter==1.2.0.post0',
+        'recordclass',
     ],
     entry_points={
         'console_scripts': [

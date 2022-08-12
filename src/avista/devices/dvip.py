@@ -25,6 +25,7 @@ class DVIPProtocol(Protocol):
         self.handler.log.info('Connected to DVIP device')
 
     def dataReceived(self, data):
+        self.handler.log.debug('<<< {data}', data=data)
         packets = _split_response(data)
         for packet in packets:
             responseType = (packet[1] & 0x70) >> 4
@@ -66,6 +67,7 @@ class DVIPCamera(VISCACameraBase, NetworkDevice):
     def send(self, data):
         my_protocol = self.get_protocol()
         if my_protocol and hasattr(my_protocol, 'transport'):
+            self.log.debug(f'>>> {data}')
             self.get_protocol().transport.write(data)
         else:
             raise NotConnectedException()

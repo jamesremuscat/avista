@@ -1,8 +1,8 @@
 from avista.core import expose
 from avista.serial import SerialDevice
 from enum import Enum
-from twisted.internet import reactor
-from twisted.internet.defer import CancelledError, Deferred, DeferredLock
+from ratelimiter import RateLimiter
+from twisted.internet.defer import Deferred, DeferredLock
 from twisted.internet.protocol import Protocol
 
 
@@ -323,17 +323,14 @@ class VISCACameraBase(VISCACommandsMixin):
         self._command_lock = DeferredLock()
         self._response_handler = None
 
+    @RateLimiter(max_calls=5, period=0.1)
     async def _sendVISCARaw(self, visca, with_lock=None):
         if with_lock is None and hasattr(self, '_wait_for_ack'):
             with_lock = self._wait_for_ack
         if with_lock:
             self.log.debug('Waiting to acquire command lock')
-            wait_lock = self._command_lock.acquire()
-            reactor.callLater(0.5, wait_lock.cancel)  # Timeout after 0.5s
-            try:
-                await wait_lock
-            except CancelledError:
-                pass
+            await self._command_lock.acquire()
+        self.log.debug('I have a lock')
 
         if isinstance(visca, list):
             visca = bytes(visca)
@@ -353,8 +350,9 @@ class VISCACameraBase(VISCACommandsMixin):
 
     def on_ack(self):
         self.log.debug('Ack')
-        if self._command_lock.locked:
-            self._command_lock.release()
+        # We should not unlock until we get a `complete` message (I think)
+        # if self._command_lock.locked:
+        #     self._command_lock.release()
 
     def on_complete(self):
         self.log.debug('VISCA command execution complete')
