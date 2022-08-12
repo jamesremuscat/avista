@@ -1,7 +1,8 @@
 from avista.core import expose
 from avista.serial import SerialDevice
 from enum import Enum
-from twisted.internet.defer import Deferred, DeferredLock, ensureDeferred
+from twisted.internet import reactor
+from twisted.internet.defer import CancelledError, Deferred, DeferredLock
 from twisted.internet.protocol import Protocol
 
 
@@ -327,7 +328,12 @@ class VISCACameraBase(VISCACommandsMixin):
             with_lock = self._wait_for_ack
         if with_lock:
             self.log.debug('Waiting to acquire command lock')
-            await self._command_lock.acquire()
+            wait_lock = self._command_lock.acquire()
+            reactor.callLater(0.5, wait_lock.cancel)  # Timeout after 0.5s
+            try:
+                await wait_lock
+            except CancelledError:
+                pass
 
         if isinstance(visca, list):
             visca = bytes(visca)
