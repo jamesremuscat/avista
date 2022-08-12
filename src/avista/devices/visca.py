@@ -40,6 +40,10 @@ class VISCAProtocol(Protocol):
                     self.handler.on_error(data[2])
             self._buffer.clear()
 
+    def connectionLost(self, reason):
+        self.handler.connectionLost()
+        return super().connectionLost(reason)
+
 
 def constrainPanTiltSpeed(func):
     async def inner(elf, panSpeed=DEFAULT_PAN_SPEED, tiltSpeed=DEFAULT_TILT_SPEED):
@@ -378,6 +382,11 @@ class SerialVISCACamera(VISCACameraBase, SerialDevice):
 
     def send(self, data):
         return self._port.writeSomeData(data)
+
+    def connectionLost(self):
+        # This sometimes happens; let's reconnect
+        self._protocol = None
+        self._connect()
 
 
 class CameraSettingEnum(Enum):

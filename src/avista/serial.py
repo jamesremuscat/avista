@@ -12,12 +12,17 @@ class SerialProtocol(Protocol):
 class SerialDevice(Device):
     def __init__(self, config):
         super().__init__(config)
+        self._port = config.extra['port']
+        self._baudrate = config.extra.get('baudrate', 9600)
+        self._connect()
 
+    def _connect(self):
+        self.log.info(f'Connecting to serial port {self._port}...')
         self._port = SerialPort(
             self.get_protocol(),
-            config.extra['port'],
+            self._port,
             reactor,
-            baudrate=config.extra.get('baudrate', 9600)
+            baudrate=self._baudrate
         )
 
     def get_protocol(self):
