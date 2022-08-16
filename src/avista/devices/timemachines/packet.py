@@ -24,11 +24,11 @@ class DisplayMode(enum.IntEnum):
 
 
 Display = BitStruct(
-    'mode' / Enum(BitsInteger(3), DisplayMode),
-    Padding(2),
-    'days' / Flag,
+    'show_tenths' / Flag,
     'running' / Flag,
-    'show_tenths' / Flag
+    'days' / Flag,
+    Padding(2),
+    'mode' / Enum(BitsInteger(3), DisplayMode),
 )
 
 CountdownAlarm = BitStruct(
