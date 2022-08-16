@@ -7,11 +7,11 @@ class Manager(NetworkDevice):
     default_port = 7372
 
     def __init__(self, config):
-        super().__init__(config)
         self._clocks = config.extra.get('clocks', '').split(',')
         self._state = {
             'clocks': {}
         }
+        super().__init__(config)
 
     def create_protocol(self):
         return TMProtocol(self)
