@@ -1,4 +1,9 @@
-from autobahn.twisted.wamp import ApplicationSession
+import os
+if os.environ.get('AVISTA_USE_ASYNCIO', False):
+    from autobahn.asyncio.wamp import ApplicationSession
+else:
+    from autobahn.twisted.wamp import ApplicationSession
+
 from autobahn.wamp.exception import ApplicationError
 from autobahn.wamp.types import PublishOptions, SubscribeOptions
 from twisted.internet import reactor

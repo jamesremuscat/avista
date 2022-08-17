@@ -1,6 +1,5 @@
 from argparse import ArgumentParser
 from autobahn.rawsocket.util import parse_url as parse_rs_url
-from autobahn.twisted.component import Component, run as autobahn_run
 from autobahn.websocket.util import parse_url as parse_ws_url
 from twisted.internet.ssl import CertificateOptions
 
@@ -102,6 +101,11 @@ def run():
 
     if not router_url:
         raise RuntimeError('No Crossbar router URL specified and AVISTA_ROUTER_URL not set. Cannot continue.')
+
+    if os.environ.get('AVISTA_USE_ASYNCIO'):
+        from autobahn.asyncio.component import Component, run as autobahn_run
+    else:
+        from autobahn.twisted.component import Component, run as autobahn_run
 
     device_class = _import_device_class(args.device_class)
     if not inspect.isclass(device_class) or not issubclass(device_class, Device):
