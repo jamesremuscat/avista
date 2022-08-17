@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'autobahn[twisted]',
         'construct',
+        'netaudio==0.0.10',
         'pyserial',
         'ratelimiter==1.2.0.post0',
         'recordclass',
