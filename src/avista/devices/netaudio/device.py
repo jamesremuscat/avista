@@ -1,10 +1,50 @@
-from avista.core import Device
+from avista.core import Device, expose
 from netaudio.dante.browser import DanteBrowser
 
 import asyncio
 
 
 DEFAULT_REFRESH_INTERVAL = 10
+
+
+class DeviceNotFound(Exception):
+    pass
+
+
+def device_by_name(devices, device_name):
+    try:
+        return next(
+            filter(
+                lambda d: d.name == device_name,
+                devices.values(),
+            )
+        )
+    except StopIteration:
+        return None
+
+
+def channel_by_name(channels, channel_name):
+    try:
+        return next(
+            filter(
+                lambda c: c.name == channel_name,
+                channels.values(),
+            )
+        )
+    except StopIteration:
+        return None
+
+
+def channel_by_number(channels, channel_number):
+    try:
+        return next(
+            filter(
+                lambda c: c.number == channel_number,
+                channels.values(),
+            )
+        )
+    except StopIteration:
+        return None
 
 
 class Dante(Device):
@@ -67,3 +107,28 @@ class Dante(Device):
 
         loop = asyncio.get_event_loop()
         loop.call_later(10, self.refresh_device_list)
+
+    @expose
+    async def set_subscription(self, tx_device_name, tx_channel, rx_device_name, rx_channel):
+        rx_device = device_by_name(self._devices, rx_device_name)
+
+        if not rx_device:
+            raise DeviceNotFound(rx_device_name)
+
+        tx_device = device_by_name(self._devices, tx_device_name)
+
+        if not tx_device:
+            raise DeviceNotFound(tx_device_name)
+
+        if type(tx_channel) == int:
+            tx_chan = channel_by_number(tx_device.tx_channels, tx_channel)
+        else:
+            tx_chan = channel_by_name(tx_device.tx_channels, tx_channel)
+
+        if type(rx_channel) == int:
+            rx_chan = channel_by_number(rx_device.rx_channels, rx_channel)
+        else:
+            rx_chan = channel_by_name(rx_device.rx_channels, rx_channel)
+
+        if tx_chan and rx_chan:
+            await rx_device.add_subscription(rx_chan, tx_chan, tx_device)
