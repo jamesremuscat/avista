@@ -1,5 +1,5 @@
 from avista.devices.blackmagic.atem.constants import KeyType, PatternStyle, TransitionStyle, VideoSource
-from construct import BitStruct, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag, Rebuild, obj_, Default
+from construct import BitStruct, Const, Struct, Int8ub, Int16ub, Int16sb, Padding, Flag, Rebuild, obj_, Default
 
 from .base import BaseCommand, BaseSetCommand, EnumAdapter, EnumFlagAdapter, clone_state_with_key, recalculate_synthetic_tally
 
@@ -628,6 +628,16 @@ class FadeToBlackState(BaseCommand):
         }
 
         return new_state
+
+
+class SetFadeToBlackRate(BaseSetCommand):
+    name = b'FtbC'
+    format = Struct(
+        'mask' / Const(1),
+        'index' / Int8ub,
+        'rate' / Int8ub,
+        Padding(1)
+    )
 
 
 class ToggleFadeToBlack(BaseSetCommand):
