@@ -1,8 +1,8 @@
 from avista.core import expose
 
 from avista.devices.blackmagic.atem.commands.mix_effects import \
-    SetProgramInput, SetPreviewInput, PerformAuto, \
-    PerformCut, TransitionSelectionField, SetTransitionProperties, \
+    SetFadeToBlackRate, SetProgramInput, SetPreviewInput, PerformAuto, \
+    PerformCut, ToggleFadeToBlack, TransitionSelectionField, SetTransitionProperties, \
     SetTransitionMixProperties, SetTransitionDipProperties, \
     SetTransitionPosition, SetKeyerOnAir
 
@@ -93,4 +93,16 @@ class MixEffects(object):
                 enabled=on_air,
                 index=me
             )
+        )
+
+    @expose
+    def set_fade_to_black_rate(self, rate, me=0):
+        self.get_protocol().send_command(
+            SetFadeToBlackRate(rate=rate, index=me)
+        )
+
+    @expose
+    def toggle_fade_to_black(self, me=0):
+        self.get_protocol().send_command(
+            ToggleFadeToBlack(index=me)
         )
