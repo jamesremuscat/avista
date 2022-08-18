@@ -644,7 +644,7 @@ class ToggleFadeToBlack(BaseSetCommand):
     name = b'FtbA'
     format = Struct(
         'index' / Int8ub,
-        Padding(3)
+        Const(b'\xA7\x59\x08')  # Magic values - at least in v7.x of the protocol
     )
 
 
