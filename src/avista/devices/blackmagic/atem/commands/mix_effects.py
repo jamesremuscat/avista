@@ -633,7 +633,7 @@ class FadeToBlackState(BaseCommand):
 class SetFadeToBlackRate(BaseSetCommand):
     name = b'FtbC'
     format = Struct(
-        'mask' / Const(1),
+        'mask' / Const(b'\x01'),
         'index' / Int8ub,
         'rate' / Int8ub,
         Padding(1)
