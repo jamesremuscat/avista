@@ -630,6 +630,14 @@ class FadeToBlackState(BaseCommand):
         return new_state
 
 
+class ToggleFadeToBlack(BaseSetCommand):
+    name = b'FtbA'
+    format = Struct(
+        'index' / Int8ub,
+        Padding(3)
+    )
+
+
 class ColorGeneratorState(BaseCommand):
     name = b'ColV'
     format = Struct(
