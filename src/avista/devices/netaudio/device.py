@@ -102,7 +102,8 @@ class Dante(Device):
 
         self.broadcast_device_message(
             'devices',
-            self._state['devices']
+            self._state['devices'],
+            retain=True
         )
 
         loop = asyncio.get_event_loop()
