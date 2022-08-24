@@ -36,7 +36,14 @@ COMMAND_LIST = defaultdict(list)
 IGNORED_UNIMPLEMENTED_COMMANDS = [
     b'CCdP',  # Camera control
     b'CCdo',  # Camera control
+    b'CCmd',  # Camera control
+    b'RXSS',  # No idea b'RXSS\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+    b'RXCP',  # No idea b'RXCP\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+    b'RXMS',  # No idea b'RXMS\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00',
+    b'RXCC',  # No idea b'RXCC\x00\x00\x00\x00'
+    b'_DVE',  # No idea - something to do with DVE availability/capabilities?
 ]
+
 
 for command_class in get_all_subclasses(BaseCommand):
     if hasattr(command_class, 'name'):
