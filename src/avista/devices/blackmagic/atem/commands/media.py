@@ -84,10 +84,9 @@ class MediaPlayerSplit(BaseCommand):
 
     def apply_to_state(self, state):
         new_state, media = clone_state_with_key(state, 'media_player')
-        storage = media.setdefault('storage', {})
 
-        storage['clip_1'] = self.clip_1
-        storage['clip_2'] = self.clip_2
+        media.setdefault(0, {})['storage'] = self.clip_1
+        media.setdefault(1, {})['storage'] = self.clip_2
 
         return new_state
 
@@ -103,9 +102,9 @@ class MediaPlayerSource(BaseCommand):
 
     def apply_to_state(self, state):
         new_state, media = clone_state_with_key(state, 'media_player')
-        source = media.setdefault('source', {})
+        player = media.setdefault(self.index, {})
 
-        source[self.index] = {
+        player['source'] = {
             'type': self.type,
             'still_index': self.still_index,
             'clip_index': self.clip_index
@@ -126,11 +125,35 @@ class MediaPlayerAudioSource(BaseCommand):
 
     def apply_to_state(self, state):
         new_state, media = clone_state_with_key(state, 'media_player')
-        audio = media.setdefault('audio', {})
+        player = media.setdefault(self.index, {})
 
-        audio[self.index] = {
+        player['audio'] = {
             'used': self.used,
             'name': self.name
+        }
+
+        return new_state
+
+
+class MediaPlayerState(BaseCommand):
+    name = b'RCPS'
+    format = Struct(
+        'index' / Int8ub,
+        'playing' / Flag,
+        'loop' / Flag,
+        'beginning' / Flag,
+        'clip_frame' / Int16ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, media = clone_state_with_key(state, 'media_player')
+        player = media.setdefault(self.index, {})
+
+        player['state'] = {
+            'playing': self.playing,
+            'loop': self.loop,
+            'beginning': self.beginning,
+            'clip_frame': self.clip_frame
         }
 
         return new_state
