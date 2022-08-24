@@ -1,14 +1,13 @@
-from avista.core import expose
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredLock
 
-from .methods import Auxes, DSK, MixEffects
+from .methods import Audio, Auxes, DSK, MixEffects
 
 from .protocol import ATEMProtocol
 
 
-class ATEM(NetworkDevice, Auxes, DSK, MixEffects):
+class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
     default_port = 9910
 
     def __init__(self, *args, **kwargs):

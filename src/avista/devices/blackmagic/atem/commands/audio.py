@@ -1,7 +1,7 @@
-from construct import Struct, Flag, Int8ub, Int16ub, Int16sb, Padding, Rebuild, len_, this
+from construct import Const, Struct, Flag, Int8ub, Int16ub, Int16sb, Padding, Rebuild, len_, this
 
 from avista.devices.blackmagic.atem.constants import AudioSource, AudioSourceType, AudioSourcePlugType, AudioMixOption
-from .base import BaseCommand, EnumAdapter, clone_state_with_key
+from .base import BaseCommand, BaseSetCommand, EnumAdapter, clone_state_with_key
 
 
 class AudioMixerInput(BaseCommand):
@@ -114,3 +114,25 @@ class AudioFollowVideo(BaseCommand):
 
         audio['afv'] = self.enabled
         return new_state
+
+
+class ResetMasterAudioMeterPeaks(BaseSetCommand):
+    name = b'RAMP'
+    format = Struct(
+        'mask' / Const(4, Int8ub),
+        Padding(1),
+        Const(0, Int8ub), Const(0, Int8ub),  # Source in bytes
+        Const(1, Int8ub),
+        Padding(3)
+    )
+
+
+class ResetInputAudioMeterPeaks(BaseSetCommand):
+    name = b'RAMP'
+    format = Struct(
+        'mask' / Const(2, Int8ub),
+        Padding(1),
+        'source' / EnumAdapter(AudioSource)(Int16ub),
+        Const(0, Int8ub),
+        Padding(3)
+    )
