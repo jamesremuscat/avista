@@ -182,6 +182,18 @@ class MultiviewLayout(IntEnum):
     RIGHT = 3
 
 
+class MultiviewLayoutV8(IntEnum):
+    DEFAULT = 0,
+    TOP_LEFT_SMALL = 1,
+    TOP_RIGHT_SMALL = 2,
+    PROGRAM_BOTTOM = 3,
+    BOTTOM_LEFT_SMALL = 4,
+    PROGRAM_RIGHT = 5,
+    BOTTOM_RIGHT_SMALL = 8,
+    PROGRAM_LEFT = 10,
+    PROGRAM_TOP = 12
+
+
 class TransitionStyle(IntEnum):
     MIX = 0
     DIP = 1

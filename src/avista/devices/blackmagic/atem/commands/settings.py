@@ -1,5 +1,5 @@
 from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalPortType, MEAvailability, \
-    MultiviewLayout, SourceAvailability, VideoSource, VideoMode
+    MultiviewLayout, MultiviewLayoutV8, SourceAvailability, VideoSource, VideoMode
 from construct import Adapter, Bytes, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this, Probe
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter, clone_state_with_key
 
@@ -61,6 +61,21 @@ class MultiviewLayout(BaseCommand):
     format = Struct(
         'index' / Int8ub,
         'layout' / EnumAdapter(MultiviewLayout)(Int8ub)
+    )
+
+    def apply_to_state(self, state):
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        mvw_config['layout'] = self.layout
+        return new_state
+
+
+class MultiviewLayoutV8(BaseCommand):
+    name = b'MvPr'
+    minimum_version = 2.28
+    format = Struct(
+        'index' / Int8ub,
+        'layout' / EnumAdapter(MultiviewLayoutV8)(Int8ub)
     )
 
     def apply_to_state(self, state):
