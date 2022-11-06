@@ -185,7 +185,7 @@ class SuperSourceV8BorderProperties(BaseCommand):
     name = b'SSBd'
     minimum_version = 2.28
     format = Struct(
-        'ssrc_id' / Int8ub,
+        'id' / Int8ub,
         'enabled' / Flag,
         'bevel' / EnumAdapter(BevelType)(Int8ub),
         Padding(1),
