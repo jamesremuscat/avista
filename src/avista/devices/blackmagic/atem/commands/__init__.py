@@ -15,6 +15,7 @@ from .media import *
 from .mix_effects import *
 from .settings import *
 from .supersource import *
+from .talkback import *
 from .tally import *
 
 
