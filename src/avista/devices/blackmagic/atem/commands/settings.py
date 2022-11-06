@@ -1,6 +1,6 @@
 from avista.devices.blackmagic.atem.constants import ExternalPortType, InternalPortType, MEAvailability, \
     MultiviewLayout, MultiviewLayoutV8, SourceAvailability, VideoSource, VideoMode
-from construct import Adapter, Bytes, Struct, Enum, Flag, FlagsEnum, Int8ub, Int16ub, PaddedString, Padding, this, Probe
+from construct import Adapter, Bytes, Double, Struct, Enum, Flag, Float32b, Int8ub, Int16ub, PaddedString, Padding, this, Probe
 from .base import BaseCommand, EnumAdapter, EnumFlagAdapter, PaddedCStringAdapter, clone_state_with_key
 
 
@@ -130,4 +130,18 @@ class MultiviewInput(BaseCommand):
         mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
         window = mvw_config.setdefault('windows', {}).setdefault(self.window_index, {})
         window['source'] = self.source
+        return new_state
+
+
+class MultiviewOpacity(BaseCommand):
+    name = b'VuMo'
+    format = Struct(
+        'index' / Int8ub,
+        'opacity' / Int8ub
+    )
+
+    def apply_to_state(self, state):
+        new_state, config = clone_state_with_key(state, 'config')
+        mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
+        mvw_config['opacity'] = self.opacity
         return new_state
