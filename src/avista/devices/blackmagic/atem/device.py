@@ -33,29 +33,32 @@ class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
         self._lock.run(self._receive_command, command)
 
     def _receive_command(self, command):
-        new_state = command.apply_to_state(self._state)
-        if new_state is None:
-            self.log.warn('apply_to_state returned None for {}'.format(command.name))
+        try:
+            new_state = command.apply_to_state(self._state)
+            if new_state is None:
+                self.log.warn('apply_to_state returned None for {}'.format(command.name))
 
-        self._prev_state = self._state
-        self._state = new_state
+            self._prev_state = self._state
+            self._state = new_state
 
-        if new_state.get('state', {}).get('initialized'):
-            pass  # print(self._state)
+            if new_state.get('state', {}).get('initialized'):
+                pass  # print(self._state)
 
-        changed_something = False
-        for nsk in new_state.keys():
-            if nsk not in self._prev_state or new_state[nsk] is not self._prev_state[nsk]:
-                changed_something = True
-                self.broadcast_device_message(
-                    nsk,
-                    subtopic=nsk,
-                    data=new_state[nsk],
-                    retain=True
+            changed_something = False
+            for nsk in new_state.keys():
+                if nsk not in self._prev_state or new_state[nsk] is not self._prev_state[nsk]:
+                    changed_something = True
+                    self.broadcast_device_message(
+                        nsk,
+                        subtopic=nsk,
+                        data=new_state[nsk],
+                        retain=True
+                    )
+
+            if not changed_something:
+                self.log.warn(
+                    'Command {cmd} changed... nothing?',
+                    cmd=command.__class__.__name__
                 )
-
-        if not changed_something:
-            self.log.warn(
-                'Command {cmd} changed... nothing?',
-                cmd=command.__class__.__name__
-            )
+        except Exception as e:
+            self.log.error('Error when applying command {c}: {e}', c=command, e=e)

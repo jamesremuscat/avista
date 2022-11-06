@@ -86,11 +86,6 @@ class ATEMProtocol(DatagramProtocol):
             self._current_uid = packet.uid
             self.log.debug('Received packet {packet}', packet=packet)
             self._last_received = time.time()
-            if packet.payload:
-                commands = self._command_parser.parse_commands(packet.payload)
-                if commands:
-                    for command in commands:
-                        self.device.receive_command(command)
 
             if packet.bitmask & PacketType.HELLO_PACKET:
                 self._is_initialised = False
@@ -112,6 +107,11 @@ class ATEMProtocol(DatagramProtocol):
                     packet.package_id
                 )
                 self.send_packet(ack)
+            if packet.payload:
+                commands = self._command_parser.parse_commands(packet.payload)
+                if commands:
+                    for command in commands:
+                        self.device.receive_command(command)
 
     def send_packet(self, packet):
         if not (packet.bitmask & (PacketType.HELLO_PACKET | PacketType.ACK)):
