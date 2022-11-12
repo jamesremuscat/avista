@@ -55,14 +55,14 @@ class EthernetRelay(NetworkDevice):
 
     @expose
     def turnOn(self, channel):
-        if channel <= len(self._state('relays')):
+        if channel <= len(self._state['relays']):
             protocol = self.get_protocol()
             if protocol:
                 protocol.send(b'1' + str(channel).encode('utf-8') + b'\x00')
 
     @expose
     def turnOff(self, channel):
-        if channel <= len(self._state('relays')):
+        if channel <= len(self._state['relays']):
             protocol = self.get_protocol()
             if protocol:
                 protocol.send(b'2' + str(channel).encode('utf-8') + b'\x00')
