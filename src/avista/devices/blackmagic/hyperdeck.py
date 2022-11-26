@@ -117,6 +117,11 @@ class HyperDeck(NetworkDevice):
         else:
             raise NotConnectedException()
 
+    def _recv_105(self, _, __):
+        # No disk
+        self._state['slots'] = {}
+        self._state['clips'] = {}
+
     def _recv_200(self, payload, raw):
         pass  # 200 is 'OK'
 
