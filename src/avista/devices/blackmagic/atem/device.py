@@ -1,12 +1,11 @@
 from avista.devices.net import NetworkDevice
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredLock
+from twisted.internet.task import LoopingCall
 
 from .methods import Audio, Auxes, DSK, MixEffects
 
 from .protocol import ATEMProtocol
-
-import throttle
 
 
 class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
@@ -18,6 +17,8 @@ class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
         super(ATEM, self).__init__(*args, **kwargs)
         self._lock = DeferredLock()
 
+        self._pending_state_updates = []
+
     def create_protocol(self):
         return ATEMProtocol(self)
 
@@ -26,6 +27,12 @@ class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
         self._connection = reactor.listenUDP(
             self.port,
             protocol
+        )
+
+    def create_state_update_loop(self):
+        return LoopingCall(
+            self._lock.run,
+            self._send_updates
         )
 
     def send_command(self, command):
@@ -43,28 +50,21 @@ class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
             self._prev_state = self._state
             self._state = new_state
 
-            if new_state.get('state', {}).get('initialized'):
-                pass  # print(self._state)
-
-            changed_something = False
             for nsk in new_state.keys():
                 if nsk not in self._prev_state or new_state[nsk] is not self._prev_state[nsk]:
-                    changed_something = True
-                    self.broadcast_device_message(
-                        nsk,
-                        subtopic=nsk,
-                        data=new_state[nsk],
-                        retain=True
-                    )
+                    if nsk not in self._pending_state_updates:
+                        self._pending_state_updates.append(nsk)
 
-            if not changed_something:
-                self.log.warn(
-                    'Command {cmd} changed... nothing?',
-                    cmd=command.__class__.__name__
-                )
         except Exception as e:
             self.log.error('Error when applying command {c}: {e}', c=command, e=e)
 
-    @throttle.wrap(0.1, 1)
-    def broadcast_device_message(self, msg_type, data=None, subtopic=None, **kwargs):
-        return super().broadcast_device_message(msg_type, data, subtopic, **kwargs)
+    def _send_updates(self):
+        self.log.debug('Sending updates: {updates}', updates=self._pending_state_updates)
+        for nsk in self._pending_state_updates:
+            self.broadcast_device_message(
+                nsk,
+                subtopic=nsk,
+                data=self._state.get(nsk),
+                retain=True
+            )
+        self._pending_state_updates.clear()

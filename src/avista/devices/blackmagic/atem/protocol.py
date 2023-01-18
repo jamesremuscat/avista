@@ -31,6 +31,8 @@ class ATEMProtocol(DatagramProtocol):
 
         self._is_terminating = False
 
+        self._update_send_loop = None
+
     def startProtocol(self):
         if self.transport and not self._is_initialised:
             self.log.info(
@@ -58,10 +60,16 @@ class ATEMProtocol(DatagramProtocol):
                     self.startProtocol
                 )
 
+            if self._update_send_loop is None:
+                self._update_send_loop = self.device.create_state_update_loop()
+                self._update_send_loop.start(0.25)
+
     def stopProtocol(self):
         self._is_terminating = True
         if self._timeout_checker:
             self._timeout_checker.stop()
+        if self._update_send_loop:
+            self._update_send_loop.stop()
 
     def _check_timeout(self):
         if not self._is_terminating:

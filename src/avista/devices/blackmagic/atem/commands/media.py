@@ -3,28 +3,28 @@ from construct import Struct, Bytes, Const, Flag, Int8ub, Int16ub, CString, Padd
 from .base import BaseCommand, EnumAdapter, PaddedCStringAdapter, clone_state_with_key
 
 
-class MediaPoolFrameDescription(BaseCommand):
-    name = b'MPfe'
-    format = Struct(
-        'file_type' / EnumAdapter(MediaPoolFileType)(Int8ub),
-        'index' / Int16ub,
-        'used' / Flag,
-        'hash' / Bytes(16),
-        'filename' / CString('utf-8')
-    )
+# class MediaPoolFrameDescription(BaseCommand):
+#     name = b'MPfe'
+#     format = Struct(
+#         'file_type' / EnumAdapter(MediaPoolFileType)(Int8ub),
+#         'index' / Int16ub,
+#         'used' / Flag,
+#         'hash' / Bytes(16),
+#         'filename' / CString('utf-8')
+#     )
 
-    def apply_to_state(self, state):
-        new_state, media = clone_state_with_key(state, 'media_pool')
-        frame_pool = media.setdefault('frames', {})
+#     def apply_to_state(self, state):
+#         new_state, media = clone_state_with_key(state, 'media_pool')
+#         frame_pool = media.setdefault('frames', {})
 
-        frame_pool[self.index] = {
-            'file_type': self.file_type,
-            'used': self.used,
-            'hash': self.hash,
-            'filename': self.filename
-        }
+#         frame_pool[self.index] = {
+#             'file_type': self.file_type,
+#             'used': self.used,
+#             'hash': self.hash,
+#             'filename': self.filename
+#         }
 
-        return new_state
+#         return new_state
 
 
 class MediaPoolClipDescription(BaseCommand):

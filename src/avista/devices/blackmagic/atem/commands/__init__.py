@@ -49,8 +49,10 @@ IGNORED_UNIMPLEMENTED_COMMANDS = [
     b'AILP',
     b'FAIP',
     b'FIEP',
-    b'FASP'
-
+    b'FASP',
+    b'FMTl',  # Fairlight audio tally
+    b'Time',  # This causes pointless state updates multiple times per second
+    b'MPfe',  # Bug in parsing this command at the moment
 ]
 
 
@@ -125,9 +127,10 @@ class CommandParser(object):
                     ver=self._version,
                     full=payload
                 )
-        except StreamError as e:
+        except (StreamError, UnicodeDecodeError) as e:
             log.error(
                 'Failed to parse command {cmd}! {full}',
                 cmd=command_type,
                 full=payload
             )
+            print(e)

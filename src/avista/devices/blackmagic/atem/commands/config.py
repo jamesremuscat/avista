@@ -355,6 +355,8 @@ class TimecodeLock(BaseCommand):
 
 
 class InitComplete(BaseCommand):
+    # Note: this doesn't seem to be sent by ATEM software 8.10 :-(
+    # Or maybe I'm doing it wrong...
     name = b'InCm'
     format = Struct(
         'complete' / Flag,
@@ -384,22 +386,22 @@ class SuperSourceBoxCount(BaseCommand):
         return new_state
 
 
-class Time(BaseCommand):
-    name = b'Time'
-    format = Struct(
-        'hour' / Int8ub,
-        'minute' / Int8ub,
-        'second' / Int8ub,
-        'frame' / Int8ub,
-        Padding(4)
-    )
+# class Time(BaseCommand):
+#     name = b'Time'
+#     format = Struct(
+#         'hour' / Int8ub,
+#         'minute' / Int8ub,
+#         'second' / Int8ub,
+#         'frame' / Int8ub,
+#         Padding(4)
+#     )
 
-    def apply_to_state(self, state):
-        new_state, stateObj = clone_state_with_key(state, 'state')
-        stateObj['time'] = {
-            'hour': self.hour,
-            'minute': self.minute,
-            'second': self.second,
-            'frame': self.frame
-        }
-        return new_state
+#     def apply_to_state(self, state):
+#         new_state, stateObj = clone_state_with_key(state, 'state')
+#         stateObj['time'] = {
+#             'hour': self.hour,
+#             'minute': self.minute,
+#             'second': self.second,
+#             'frame': self.frame
+#         }
+#         return new_state

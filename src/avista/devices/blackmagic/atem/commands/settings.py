@@ -126,6 +126,10 @@ class MultiviewInput(BaseCommand):
     )
 
     def apply_to_state(self, state):
+        # ATEM software 8.10 seems to perpetually send these out
+        old_value = state.get('config', {}).get('multiviewers', {}).get(self.index, {}).get('windows', {}).get(self.window_index, {}).get('source')
+        if self.source == old_value:
+            return state
         new_state, config = clone_state_with_key(state, 'config')
         mvw_config = config.setdefault('multiviewers', {}).setdefault(self.index, {})
         window = mvw_config.setdefault('windows', {}).setdefault(self.window_index, {})
