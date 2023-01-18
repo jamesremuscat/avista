@@ -22,6 +22,7 @@ setup(
         'pyserial',
         'ratelimiter==1.2.0.post0',
         'recordclass',
+        'throttle',
     ],
     entry_points={
         'console_scripts': [

@@ -6,6 +6,8 @@ from .methods import Audio, Auxes, DSK, MixEffects
 
 from .protocol import ATEMProtocol
 
+import throttle
+
 
 class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
     default_port = 9910
@@ -62,3 +64,7 @@ class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
                 )
         except Exception as e:
             self.log.error('Error when applying command {c}: {e}', c=command, e=e)
+
+    @throttle.wrap(0.1, 1)
+    def broadcast_device_message(self, msg_type, data=None, subtopic=None, **kwargs):
+        return super().broadcast_device_message(msg_type, data, subtopic, **kwargs)
