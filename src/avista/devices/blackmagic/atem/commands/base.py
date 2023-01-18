@@ -118,6 +118,9 @@ def clone_state_with_key(state, key, default=None):
     return (new_state, new_state[key])
 
 
+SUPER_SOURCES = [VideoSource.SUPER_SOURCE_1, VideoSource.SUPER_SOURCE_2]
+
+
 def recalculate_synthetic_tally(state):
     new_state, tally = clone_state_with_key(state, 'tally')
 
@@ -129,14 +132,14 @@ def recalculate_synthetic_tally(state):
         if me.get('preview') is not None:
             this_me.setdefault(me['preview'], {})['preview'] = True
 
-            if me['preview'] == VideoSource.SUPER_SOURCE:
+            if me['preview'] in SUPER_SOURCES:
                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                     this_me.setdefault(sssrc, {})['preview'] = True
 
         if me.get('program') is not None:
             this_me.setdefault(me['program'], {})['program'] = True
 
-            if me['program'] == VideoSource.SUPER_SOURCE:
+            if me['program'] in SUPER_SOURCES:
                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                     this_me.setdefault(sssrc, {})['program'] = True
 
@@ -148,7 +151,7 @@ def recalculate_synthetic_tally(state):
                 if keyer.get('key_source'):
                     this_me.setdefault(keyer['key_source'], {})['program'] = True
 
-                if VideoSource.SUPER_SOURCE in [keyer.get('fill_source'), keyer.get('key_source')]:
+                if keyer.get('fill_source') in SUPER_SOURCES or keyer.get('key_source') in SUPER_SOURCES:
                     for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                         this_me.setdefault(sssrc, {})['program'] = True
 
@@ -171,7 +174,7 @@ def recalculate_synthetic_tally(state):
                             if keyer.get('key_source') is not None:
                                 this_me.setdefault(keyer['key_source'], {})['program'] = True
 
-                            if VideoSource.SUPER_SOURCE in [keyer.get('fill_source'), keyer.get('key_source')]:
+                            if keyer.get('fill_source') in SUPER_SOURCES or keyer.get('key_source') in SUPER_SOURCES:
                                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                                     this_me.setdefault(sssrc, {})['program'] = True
 
@@ -194,7 +197,7 @@ def recalculate_synthetic_tally(state):
             if dsk.get('key_source'):
                 tally['by_me'][0][dsk['key_source']]['program'] = True
 
-            if VideoSource.SUPER_SOURCE in [dsk.get('fill_source'), dsk.get('key_source')]:
+            if dsk.get('fill_source') in SUPER_SOURCES or dsk.get('key_source') in SUPER_SOURCES:
                 for sssrc in _get_all_supersource_sources(new_state.get('super_source', {})):
                     tally['by_me'][0][sssrc]['program'] = True
 

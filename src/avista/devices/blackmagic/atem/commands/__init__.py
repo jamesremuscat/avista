@@ -43,6 +43,14 @@ IGNORED_UNIMPLEMENTED_COMMANDS = [
     b'RXMS',  # No idea b'RXMS\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00',
     b'RXCC',  # No idea b'RXCC\x00\x00\x00\x00'
     b'_DVE',  # No idea - something to do with DVE availability/capabilities?
+    b'AEBP',
+    b'AIXP',
+    b'AICP',
+    b'AILP',
+    b'FAIP',
+    b'FIEP',
+    b'FASP'
+
 ]
 
 

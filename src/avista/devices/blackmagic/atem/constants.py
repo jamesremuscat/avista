@@ -23,6 +23,26 @@ class VideoSource(IntEnum):
     INPUT_18 = 18
     INPUT_19 = 19
     INPUT_20 = 20
+    INPUT_21 = 21
+    INPUT_22 = 22
+    INPUT_23 = 23
+    INPUT_24 = 24
+    INPUT_25 = 25
+    INPUT_26 = 26
+    INPUT_27 = 27
+    INPUT_28 = 28
+    INPUT_29 = 29
+    INPUT_30 = 30
+    INPUT_31 = 31
+    INPUT_32 = 32
+    INPUT_33 = 33
+    INPUT_34 = 34
+    INPUT_35 = 35
+    INPUT_36 = 36
+    INPUT_37 = 37
+    INPUT_38 = 38
+    INPUT_39 = 39
+    INPUT_40 = 40
     COLOUR_BARS = 1000
     COLOUR_1 = 2001
     COLOUR_2 = 2002
@@ -30,25 +50,68 @@ class VideoSource(IntEnum):
     MEDIA_PLAYER_1_KEY = 3011
     MEDIA_PLAYER_2 = 3020
     MEDIA_PLAYER_2_KEY = 3021
-    KEY_1_MASK = 4010
-    KEY_2_MASK = 4020
-    KEY_3_MASK = 4030
-    KEY_4_MASK = 4040
+    MEDIA_PLAYER_3 = 3030
+    MEDIA_PLAYER_3_KEY = 3031
+    MEDIA_PLAYER_4 = 3040
+    MEDIA_PLAYER_4_KEY = 3041
+    ME_1_KEY_1_MASK = 4010
+    ME_1_KEY_2_MASK = 4020
+    ME_1_KEY_3_MASK = 4030
+    ME_1_KEY_4_MASK = 4040
+    ME_2_KEY_1_MASK = 4050
+    ME_2_KEY_2_MASK = 4060
+    ME_2_KEY_3_MASK = 4070
+    ME_2_KEY_4_MASK = 4080
+    ME_3_KEY_1_MASK = 4090
+    ME_3_KEY_2_MASK = 4100
+    ME_3_KEY_3_MASK = 4110
+    ME_3_KEY_4_MASK = 4120
+    ME_4_KEY_1_MASK = 4130
+    ME_4_KEY_2_MASK = 4140
+    ME_4_KEY_3_MASK = 4150
+    ME_4_KEY_4_MASK = 4160
     DSK_1_MASK = 5010
     DSK_2_MASK = 5020
-    SUPER_SOURCE = 6000
+    DSK_3_MASK = 5030
+    DSK_4_MASK = 5040
+    SUPER_SOURCE_1 = 6000
+    SUPER_SOURCE_2 = 6001
     CLEAN_FEED_1 = 7001
     CLEAN_FEED_2 = 7002
+    CLEAN_FEED_3 = 7003
+    CLEAN_FEED_4 = 7004
     AUX_1 = 8001
     AUX_2 = 8002
     AUX_3 = 8003
     AUX_4 = 8004
     AUX_5 = 8005
     AUX_6 = 8006
+    AUX_7 = 8007
+    AUX_8 = 8008
+    AUX_9 = 8009
+    AUX_10 = 8010
+    AUX_11 = 8011
+    AUX_12 = 8012
+    AUX_13 = 8013
+    AUX_14 = 8014
+    AUX_15 = 8015
+    AUX_16 = 8016
+    AUX_17 = 8017
+    AUX_18 = 8018
+    AUX_19 = 8019
+    AUX_20 = 8020
+    AUX_21 = 8021
+    AUX_22 = 8022
+    AUX_23 = 8023
+    AUX_24 = 8024
     ME_1_PROGRAM = 10010
     ME_1_PREVIEW = 10011
     ME_2_PROGRAM = 10020
     ME_2_PREVIEW = 10021
+    ME_3_PROGRAM = 10030
+    ME_3_PREVIEW = 10031
+    ME_4_PROGRAM = 10040
+    ME_4_PREVIEW = 10041
 
 
 class ExternalPortType(IntEnum):
@@ -121,6 +184,10 @@ class VideoMode(IntEnum):
     HD_4K_24 = 15
     HD_4K_25 = 16
     HD_4K_29 = 17
+    VIDEO_MODE_26 = 26
+    VIDEO_MODE_27 = 27
+    VIDEO_MODE_28 = 28
+    VIDEO_MODE_29 = 29
 
 
 class AudioSource(IntEnum):
@@ -144,11 +211,33 @@ class AudioSource(IntEnum):
     INPUT_18 = 18
     INPUT_19 = 19
     INPUT_20 = 20
+    INPUT_21 = 21
+    INPUT_22 = 22
+    INPUT_23 = 23
+    INPUT_24 = 24
+    INPUT_25 = 25
+    INPUT_26 = 26
+    INPUT_27 = 27
+    INPUT_28 = 28
+    INPUT_29 = 29
+    INPUT_30 = 30
+    INPUT_31 = 31
+    INPUT_32 = 32
+    INPUT_33 = 33
+    INPUT_34 = 34
+    INPUT_35 = 35
+    INPUT_36 = 36
+    INPUT_37 = 37
+    INPUT_38 = 38
+    INPUT_39 = 39
+    INPUT_40 = 40
     XLR = 1001
     AES_EBU = 1101
     RCA = 1201
     MEDIA_PLAYER_1 = 2001
     MEDIA_PLAYER_2 = 2002
+    MEDIA_PLAYER_3 = 2003
+    MEDIA_PLAYER_4 = 2004
 
 
 class AudioSourceType(IntEnum):
@@ -192,6 +281,7 @@ class MultiviewLayoutV8(IntEnum):
     BOTTOM_RIGHT_SMALL = 8,
     PROGRAM_LEFT = 10,
     PROGRAM_TOP = 12
+    LAYOUT_15 = 15
 
 
 class TransitionStyle(IntEnum):
