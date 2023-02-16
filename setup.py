@@ -16,13 +16,14 @@ setup(
     setup_requires=['setuptools_scm'],
     tests_require=[],
     install_requires=[
-        'autobahn[twisted]',
+        'autobahn[serialization,twisted]',
         'construct',
         'netaudio==0.0.10',
         'pyserial',
         'ratelimiter==1.2.0.post0',
         'recordclass',
         'throttle',
+        'treq'
     ],
     entry_points={
         'console_scripts': [
