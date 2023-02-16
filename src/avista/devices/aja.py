@@ -32,7 +32,7 @@ class Helo(Device):
 
     def after_power_on(self):
         d = Deferred.fromCoroutine(self._start_polling())
-        d.addCallback(super().before_power_off)
+        d.addCallback(lambda _: super().after_power_on())
 
     def before_power_off(self):
         self._stop_polling()
