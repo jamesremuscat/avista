@@ -65,7 +65,8 @@ class Helo(Device):
             self._broadcast_state()
 
     def _stop_polling(self):
-        self._poll_loop.stop()
+        if self._poll_loop.running:
+            self._poll_loop.stop()
         self._connectionID = None
 
     def _handle_param_update(self, param_name, value):
