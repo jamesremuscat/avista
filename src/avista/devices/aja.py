@@ -1,5 +1,6 @@
 from avista.core import Device, expose
 from enum import Enum
+from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.task import LoopingCall
 
@@ -32,7 +33,11 @@ class Helo(Device):
 
     def after_power_on(self):
         d = Deferred.fromCoroutine(self._start_polling())
-        d.addCallback(lambda _: super().after_power_on())
+        d.addCallbacks(
+            lambda _: super().after_power_on(),
+            # On error try again in 10 seconds
+            lambda _: reactor.callLater(10, self.after_power_on)
+        )
 
     def before_power_off(self):
         self._stop_polling()
