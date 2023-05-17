@@ -34,6 +34,7 @@ class Device(ApplicationSession):
     def __init__(self, config):
         super().__init__(config)
         self.name = config.extra['name']
+        self._joined = False
 
     async def onJoin(self, details):
 
@@ -61,6 +62,8 @@ class Device(ApplicationSession):
                 get_retained=True
             )
         )
+
+        self._joined = True
 
         self._broadcast_registration()
 
@@ -100,12 +103,13 @@ class Device(ApplicationSession):
         )
 
     def publish(self, topic, payload, **kwargs):
-        self.log.debug(
-            'Publishing to {topic}: {payload}',
-            topic=topic,
-            payload=payload
-        )
-        super().publish(topic, payload, **kwargs)
+        if self._joined:
+            self.log.debug(
+                'Publishing to {topic}: {payload}',
+                topic=topic,
+                payload=payload
+            )
+            super().publish(topic, payload, **kwargs)
 
     @expose
     def _get_state(self):

@@ -152,4 +152,4 @@ class AHM(NetworkDevice):
             'sysex',
             data=SYSEX_HEADER + b'\x00\x08' + zone.to_bytes(1, 'big') + sourceIndex.to_bytes(1, 'big')
         ).bytes())
-        self.get_protocol().send(msg)
+        self.send(msg)
