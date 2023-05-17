@@ -4,7 +4,7 @@ if os.environ.get('AVISTA_USE_ASYNCIO', False):
 else:
     from autobahn.twisted.wamp import ApplicationSession
 
-from autobahn.wamp.exception import ApplicationError
+from autobahn.wamp.exception import ApplicationError, TransportLost
 from autobahn.wamp.types import PublishOptions, SubscribeOptions
 from twisted.internet import reactor
 from twisted.internet.defer import ensureDeferred
@@ -34,7 +34,6 @@ class Device(ApplicationSession):
     def __init__(self, config):
         super().__init__(config)
         self.name = config.extra['name']
-        self._joined = False
 
     async def onJoin(self, details):
 
@@ -62,8 +61,6 @@ class Device(ApplicationSession):
                 get_retained=True
             )
         )
-
-        self._joined = True
 
         self._broadcast_registration()
 
@@ -103,13 +100,15 @@ class Device(ApplicationSession):
         )
 
     def publish(self, topic, payload, **kwargs):
-        if self._joined:
+        try:
             self.log.debug(
                 'Publishing to {topic}: {payload}',
                 topic=topic,
                 payload=payload
             )
             super().publish(topic, payload, **kwargs)
+        except TransportLost:
+            pass
 
     @expose
     def _get_state(self):

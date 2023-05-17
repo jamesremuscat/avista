@@ -56,7 +56,7 @@ class AHM(NetworkDevice):
     def __init__(self, config):
         super().__init__(config)
         self._reset_state()
-        self._publisher = LoopingCall(self._maybe_publish_update)
+        self._publisher = None
 
     def _reset_state(self):
         self._state = {
@@ -83,11 +83,14 @@ class AHM(NetworkDevice):
         return AHMProtocol(self.handle_message)
 
     def after_power_on(self):
+        self._publisher = LoopingCall(self._maybe_publish_update)
         self._publisher.start(0.5)
         return super().after_power_on()
 
     def before_power_off(self):
-        self._publisher.stop()
+        if self._publisher:
+            self._publisher.stop()
+        self._reset_state()
         return super().before_power_off()
 
     def handle_message(self, message):
