@@ -94,21 +94,25 @@ class AHM(NetworkDevice):
         return super().before_power_off()
 
     def handle_message(self, message):
-        data = bytes(message.data)
-        handled = False
-        if (data[0:SYSEX_HEADER_LENGTH]) == SYSEX_HEADER:
-            payload = data[SYSEX_HEADER_LENGTH:]
-            match payload[1]:
-                case 0x08:
-                    self._handle_source_selector(payload)
-                    handled = True
-                case 0x0A:
-                    self._handle_channel_name(payload)
-                    handled = True
-                case _:
-                    print(f'Unknown data packet type: {payload[1]} (full payload {payload})')
-        if handled:
-            self._modified = True
+        try:
+            if message.type == 'sysex' and hasattr(message, 'data'):
+                data = bytes(message.data)
+                handled = False
+                if (data[0:SYSEX_HEADER_LENGTH]) == SYSEX_HEADER:
+                    payload = data[SYSEX_HEADER_LENGTH:]
+                    match payload[1]:
+                        case 0x08:
+                            self._handle_source_selector(payload)
+                            handled = True
+                        case 0x0A:
+                            self._handle_channel_name(payload)
+                            handled = True
+                        case _:
+                            print(f'Unknown data packet type: {payload[1]} (full payload {payload})')
+                if handled:
+                    self._modified = True
+        except Exception:
+            self.log.failure("Exception thrown when handling message {message}", message=message)
 
     def _maybe_publish_update(self):
         if self._modified:
