@@ -15,6 +15,12 @@ INPUT_TYPE = b'\x00'
 ZONE_TYPE = b'\x01'
 CONTROL_GROUP_TYPE = b'\x02'
 
+CHANNEL_TYPES = {
+    0: 'inputs',
+    1: 'zones',
+    2: 'controlGroups'
+}
+
 
 class AHMProtocol(Protocol):
     def __init__(self, onmessage) -> None:
@@ -101,6 +107,9 @@ class AHM(NetworkDevice):
                 if (data[0:SYSEX_HEADER_LENGTH]) == SYSEX_HEADER:
                     payload = data[SYSEX_HEADER_LENGTH:]
                     match payload[1]:
+                        case 0x02:
+                            self._handle_send_level(payload)
+                            handled = True
                         case 0x08:
                             self._handle_source_selector(payload)
                             handled = True
@@ -156,6 +165,21 @@ class AHM(NetworkDevice):
         else:
             # Interpreting as source selection message
             zone['currentSource'] = data[3]
+
+    def _handle_send_level(self, data):
+        source_type = data[0]
+        source_channel = data[2]
+
+        dest_type = data[3]
+        dest_channel = data[4]
+
+        level = data[5]
+
+        self.log.debug(f'Send type {source_type} channel {source_channel} to type {dest_type} channel {dest_channel}: level {level}')
+
+        dest = self._state[CHANNEL_TYPES[dest_type]][dest_channel]
+        levels = dest.setdefault('sends', {'inputs': {}, 'zones': {}})
+        levels[CHANNEL_TYPES[source_type]][source_channel] = level
 
     @expose
     def set_zone_source(self, zone, sourceIndex):
