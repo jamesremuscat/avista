@@ -88,7 +88,7 @@ class AHM(NetworkDevice):
         return super().after_power_on()
 
     def before_power_off(self):
-        if self._publisher:
+        if self._publisher and self._publisher.running:
             self._publisher.stop()
         self._reset_state()
         return super().before_power_off()
