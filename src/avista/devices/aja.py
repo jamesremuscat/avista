@@ -2,7 +2,7 @@ from avista.core import Device, expose
 from enum import Enum
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
-from twisted.internet.task import LoopingCall
+from twisted.web.client import Agent, HTTPConnectionPool
 
 import time
 import treq
@@ -24,19 +24,34 @@ class Helo(Device):
 
         self._api_root = f'http://{self.host}/config?'
 
+        self._client = treq.client.HTTPClient(
+            Agent(
+                reactor,
+                pool=HTTPConnectionPool(reactor, persistent=True)
+            )
+        )
+
         self._state = {}
         self._connectionID = None
 
-        self._poll_loop = LoopingCall(self._do_poll)
+        self._pollCall = None
+
         if self.always_powered:
             self.after_power_on()
 
     def after_power_on(self):
+        print('After power on')
         d = Deferred.fromCoroutine(self._start_polling())
+        spo = super().after_power_on
+
+        # On error try again in 10 seconds
+        def handle_err(e):
+            print(e)
+            reactor.callLater(10, self.after_power_on)
+
         d.addCallbacks(
-            lambda _: super().after_power_on(),
-            # On error try again in 10 seconds
-            lambda _: reactor.callLater(10, self.after_power_on)
+            lambda _: spo(),
+            handle_err
         )
 
     def before_power_off(self):
@@ -45,7 +60,7 @@ class Helo(Device):
 
     async def _start_polling(self):
         url = f'{self._api_root}action=connect'
-        state = await treq.get(url)
+        state = await self._client.get(url)
         state_obj = await treq.json_content(state)
         self._connectionID = state_obj['connectionid']
         config_events = state_obj['configevents']
@@ -53,7 +68,8 @@ class Helo(Device):
             for param, value in event.items():
                 self._handle_param_update(param, value)
         self._broadcast_state()
-        await self._poll_loop.start(POLL_INTERVAL)
+        self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
+        return True
 
     def _do_poll(self):
         return Deferred.fromCoroutine(self._do_poll_async())
@@ -61,17 +77,18 @@ class Helo(Device):
     async def _do_poll_async(self):
         if self._connectionID is not None:
             url = f'{self._api_root}action=wait_for_config_events&connectionid={self._connectionID}&_={time.time()}'
-            state = await treq.get(url)
+            state = await self._client.get(url)
             state_obj = await treq.json_content(state)
             for event in state_obj:
                 if 'param_type' in event:
                     value = event['str_value'] if event['param_type'] == '12' else event['int_value']  # ...which also happens to be a string, thanks AJA
                     self._handle_param_update(event['param_id'], value)
             self._broadcast_state()
+            self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
 
     def _stop_polling(self):
-        if self._poll_loop.running:
-            self._poll_loop.stop()
+        if self._pollCall:
+            self._pollCall.cancel()
         self._connectionID = None
 
     def _handle_param_update(self, param_name, value):
