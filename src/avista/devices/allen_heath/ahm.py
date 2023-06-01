@@ -111,8 +111,8 @@ class AHM(NetworkDevice):
                             print(f'Unknown data packet type: {payload[1]} (full payload {payload})')
                 if handled:
                     self._modified = True
-        except Exception:
-            self.log.failure("Exception thrown when handling message {message}", message=message)
+        except Exception as e:
+            self.log.failure("Exception thrown when handling message {message}: {e}", message=message, e=e)
 
     def _maybe_publish_update(self):
         if self._modified:
@@ -137,7 +137,10 @@ class AHM(NetworkDevice):
     def _handle_source_selector(self, data):
         zone = self._state['zones'][data[2]]
 
-        if len(data) > 15:
+        # print(f'({len(data)}): {data}')
+
+        if data[-1] == 0:
+            # Interpreting as GetSourceSelector response
             zone['currentSource'] = data[4]
             zone['sources'] = []
 
@@ -151,6 +154,7 @@ class AHM(NetworkDevice):
                     }
                 )
         else:
+            # Interpreting as source selection message
             zone['currentSource'] = data[3]
 
     @expose
