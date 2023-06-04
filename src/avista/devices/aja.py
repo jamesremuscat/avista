@@ -2,6 +2,7 @@ from avista.core import Device, expose
 from enum import Enum
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
+from twisted.internet.error import AlreadyCalled
 from twisted.web.client import Agent, HTTPConnectionPool
 
 import time
@@ -40,13 +41,12 @@ class Helo(Device):
             self.after_power_on()
 
     def after_power_on(self):
-        print('After power on')
         d = Deferred.fromCoroutine(self._start_polling())
         spo = super().after_power_on
 
         # On error try again in 10 seconds
         def handle_err(e):
-            print(e)
+            self.log.error('Error connecting to Helo {host}: {e}', host=self.host, e=e)
             reactor.callLater(10, self.after_power_on)
 
         d.addCallbacks(
@@ -88,7 +88,10 @@ class Helo(Device):
 
     def _stop_polling(self):
         if self._pollCall:
-            self._pollCall.cancel()
+            try:
+                self._pollCall.cancel()
+            except AlreadyCalled:
+                pass
         self._connectionID = None
 
     def _handle_param_update(self, param_name, value):
