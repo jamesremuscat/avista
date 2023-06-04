@@ -37,10 +37,13 @@ class Helo(Device):
 
         self._pollCall = None
 
+        self._shouldPoll = False
+
         if self.always_powered:
             self.after_power_on()
 
     def after_power_on(self):
+        self._shouldPoll = True
         d = Deferred.fromCoroutine(self._start_polling())
         spo = super().after_power_on
 
@@ -55,6 +58,7 @@ class Helo(Device):
         )
 
     def before_power_off(self):
+        self._shouldPoll = False
         self._stop_polling()
         return super().before_power_off()
 
@@ -68,23 +72,27 @@ class Helo(Device):
             for param, value in event.items():
                 self._handle_param_update(param, value)
         self._broadcast_state()
-        self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
+        if self._shouldPoll:
+            self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
         return True
 
     def _do_poll(self):
         return Deferred.fromCoroutine(self._do_poll_async())
 
     async def _do_poll_async(self):
-        if self._connectionID is not None:
-            url = f'{self._api_root}action=wait_for_config_events&connectionid={self._connectionID}&_={time.time()}'
-            state = await self._client.get(url)
-            state_obj = await treq.json_content(state)
-            for event in state_obj:
-                if 'param_type' in event:
-                    value = event['str_value'] if event['param_type'] == '12' else event['int_value']  # ...which also happens to be a string, thanks AJA
-                    self._handle_param_update(event['param_id'], value)
-            self._broadcast_state()
-            self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
+        try:
+            if self._connectionID is not None:
+                url = f'{self._api_root}action=wait_for_config_events&connectionid={self._connectionID}&_={time.time()}'
+                state = await self._client.get(url)
+                state_obj = await treq.json_content(state)
+                for event in state_obj:
+                    if 'param_type' in event:
+                        value = event['str_value'] if event['param_type'] == '12' else event['int_value']  # ...which also happens to be a string, thanks AJA
+                        self._handle_param_update(event['param_id'], value)
+                self._broadcast_state()
+        except Exception as e:
+            self.log.error('Error polling Helo {host}: {e}', host=self.host, e=e)
+        self._pollCall = reactor.callLater(POLL_INTERVAL, self._do_poll)
 
     def _stop_polling(self):
         if self._pollCall:
