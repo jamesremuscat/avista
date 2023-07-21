@@ -33,6 +33,7 @@ class BlindsArray(Device):
                     await self.safe_call(f'{relays[0]}.turnOn', relays[1])
                     await pause(0.5)
                     await self.safe_call(f'{relays[0]}.turnOff', relays[1])
+                    await pause(0.25)
 
     @expose
     async def raiseUp(self, index):
