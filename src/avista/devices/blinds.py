@@ -19,15 +19,22 @@ class BlindsArray(Device):
         #   "down": ["device_name", channelNumber],
         #   "stop": ["device_name", channelNumber],
         # }
+        self.pulse = config.extra.get('pulse', False)
 
     async def blindAction(self, action, index):
         if index < len(self.blinds):
             blind = self.blinds[index]
             if action in blind:
                 relays = blind[action]
-                await self.safe_call(f'{relays[0]}.turnOn', relays[1])
-                await pause(0.5)
-                await self.safe_call(f'{relays[0]}.turnOff', relays[1])
+                if self.pulse:
+                    self.log.info('Pulsing blind index {idx}', idx=index)
+                    await self.safe_call(f'{relays[0]}.pulseOn', relays[1])
+                    await pause(0.25)
+                else:
+                    self.log.info('Toggling blind index {idx}', idx=index)
+                    await self.safe_call(f'{relays[0]}.turnOn', relays[1])
+                    await pause(0.5)
+                    await self.safe_call(f'{relays[0]}.turnOff', relays[1])
 
     @expose
     async def raiseUp(self, index):

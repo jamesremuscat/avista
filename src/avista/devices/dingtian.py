@@ -66,3 +66,10 @@ class EthernetRelay(NetworkDevice):
             protocol = self.get_protocol()
             if protocol:
                 protocol.send(b'2' + str(channel).encode('utf-8') + b'\x00')
+
+    @expose
+    def pulseOn(self, channel):
+        if channel <= len(self._state['relays']):
+            protocol = self.get_protocol()
+            if protocol:
+                protocol.send(b'1' + str(channel).encode('utf-8') + b'*\x00')
