@@ -14,6 +14,7 @@ class StringProtocol(Protocol):
         self.handler = handler
 
     def connectionMade(self):
+        self.handler.log.info(f'Connected to {self.handler.host}:{self.handler.port}')
         self.send(b'00')
 
     def dataReceived(self, data):
