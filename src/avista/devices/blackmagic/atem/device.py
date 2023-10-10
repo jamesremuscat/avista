@@ -3,12 +3,12 @@ from twisted.internet import reactor
 from twisted.internet.defer import DeferredLock
 from twisted.internet.task import LoopingCall
 
-from .methods import Audio, Auxes, DSK, MixEffects
+from .methods import Audio, Auxes, DSK, Macro, MixEffects
 
 from .protocol import ATEMProtocol
 
 
-class ATEM(NetworkDevice, Audio, Auxes, DSK, MixEffects):
+class ATEM(NetworkDevice, Audio, Auxes, DSK, Macro, MixEffects):
     default_port = 9910
 
     def __init__(self, *args, **kwargs):

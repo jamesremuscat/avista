@@ -1,5 +1,6 @@
-from construct import Struct, Flag, Int16ub, PaddedString, this
-from .base import BaseCommand, clone_state_with_key
+from avista.devices.blackmagic.atem.constants import MacroActionType
+from construct import Struct, Flag, Int8ub, Int16ub, PaddedString, Padding, this
+from .base import BaseCommand, BaseSetCommand, clone_state_with_key, EnumAdapter
 
 
 class MacroProperties(BaseCommand):
@@ -23,3 +24,12 @@ class MacroProperties(BaseCommand):
         macro['description'] = self.description
 
         return new_state
+
+
+class MacroAction(BaseSetCommand):
+    name = b'MAct'
+    format = Struct(
+        'index' / Int16ub,
+        'action' / Int8ub,
+        Padding(1)
+    )

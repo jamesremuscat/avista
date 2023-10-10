@@ -330,3 +330,12 @@ class PatternStyle(IntEnum):
     SQUARE_RIGHT = 15
     DIAGONAL_TOP_LEFT = 16
     DIAGONAL_TOP_RIGHT = 17
+
+
+class MacroActionType(IntEnum):
+    RUN_MACRO = 0
+    STOP = 1
+    STOP_RECORDING = 2
+    INSERT_WAIT = 3
+    CONTINUE = 4
+    DELETE = 5
